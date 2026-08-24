@@ -4,6 +4,7 @@ let time = 0;
 let bestTime = null;
 let timerInterval = null;
 let animationFrameId = null;
+let seed = 123;
 
 // Canvas setup
 const canvas = document.getElementById("gameCanvas");
@@ -17,7 +18,7 @@ const car = {
   speed: 0,
   maxSpeed: 3,
   acceleration: 0.003,
-  friction: 0.99,
+  friction: 0.001,
   turnSpeed: 0.02,
 };
 
@@ -245,9 +246,9 @@ function updateGame() {
   if (keys.w) {
     car.speed = Math.min(car.speed + car.acceleration, car.maxSpeed);
   } else if (keys.s) {
-    car.speed = Math.max(car.speed - car.acceleration * 3, -car.maxSpeed * 0.5);
+    car.speed = Math.max(car.speed - car.acceleration * 5, -car.maxSpeed * 0.5);
   } else {
-    car.speed *= car.friction;
+    car.speed -= car.friction;
   }
 
   // Handle turning (only when moving)
