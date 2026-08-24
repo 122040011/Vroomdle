@@ -4,7 +4,7 @@ let time = 0;
 let bestTime = null;
 let timerInterval = null;
 let animationFrameId = null;
-let seed = 59203984;
+let seed = Date.now();
 
 // Canvas setup
 const canvas = document.getElementById("gameCanvas");
@@ -87,14 +87,14 @@ function generateTrack(seed) {
   const canvasHeight = 600;
 
   // Roll for total track length
-  const minTrackLength = 800;
-  const maxTrackLength = 1600;
+  const minTrackLength = 4000;
+  const maxTrackLength = 8000;
   const targetLength =
     minTrackLength + rng() * (maxTrackLength - minTrackLength);
 
   // Track generation parameters
-  const minSegmentLength = 100;
-  const maxSegmentLength = 250;
+  const minSegmentLength = 300;
+  const maxSegmentLength = 850;
   const minCurvature = -0.05; // Max left curve
   const maxCurvature = 0.05; // Max right curve
 
@@ -106,24 +106,34 @@ function generateTrack(seed) {
 
   const centerline = [];
   centerline.push({ x, y });
+  let previousSegmentDirection = null;
 
   // Generate segments until we reach target length
   while (totalLength < targetLength) {
     // Roll for turn type first
     const turnRoll = rng();
+    const directions = ["left", "right", "straight", "straight"];
+    const availableDirections = directions.filter(
+      (dir) => dir != previousSegmentDirection,
+    );
+    const segmentDirection =
+      availableDirections[Math.floor(rng() * availableDirections.length)];
+    previousSegmentDirection = segmentDirection;
+
     let curvature;
 
-    if (turnRoll < 0.3) {
+    if (segmentDirection == "left") {
       // Left turn
       curvature = minCurvature * (0.5 + rng() * 0.5);
-    } else if (turnRoll < 0.6) {
+    } else if (segmentDirection == "right") {
       // Right turn
       curvature = maxCurvature * (0.5 + rng() * 0.5);
     } else {
       // Straight or very gentle curve
       curvature = (rng() - 0.5) * 0.008;
+      console.log("straight\n");
     }
-
+    console.log("segment");
     // Calculate max angle change allowed (140 degrees = ~2.44 radians)
     const maxAngleChange = 2.44;
 
@@ -164,15 +174,45 @@ function generateTrack(seed) {
     totalLength += segmentLength;
   }
 
-  // Clamp all points to canvas bounds
+  // Find bounds of the raw centerline
+  let minX = Infinity,
+    maxX = -Infinity;
+  let minY = Infinity,
+    maxY = -Infinity;
+
+  for (const point of centerline) {
+    minX = Math.min(minX, point.x);
+    maxX = Math.max(maxX, point.x);
+    minY = Math.min(minY, point.y);
+    maxY = Math.max(maxY, point.y);
+  }
+
+  const trackNaturalWidth = maxX - minX;
+  const trackNaturalHeight = maxY - minY;
+
+  // Calculate scale factor to fit track in canvas with margin
   const margin = 80;
-  const clampedCenterline = centerline.map((point) => ({
-    x: Math.max(margin, Math.min(canvasWidth - margin, point.x)),
-    y: Math.max(margin, Math.min(canvasHeight - margin, point.y)),
+  const availableWidth = canvasWidth - 2 * margin;
+  const availableHeight = canvasHeight - 2 * margin;
+
+  const scaleX = availableWidth / trackNaturalWidth;
+  const scaleY = availableHeight / trackNaturalHeight;
+  const scale = Math.min(scaleX, scaleY); // Use smaller scale to fit both dimensions
+
+  // Calculate translation to center the track
+  const scaledWidth = trackNaturalWidth * scale;
+  const scaledHeight = trackNaturalHeight * scale;
+  const offsetX = margin + (availableWidth - scaledWidth) / 2 - minX * scale;
+  const offsetY = margin + (availableHeight - scaledHeight) / 2 - minY * scale;
+
+  // Transform all centerline points to fit canvas
+  const transformedCenterline = centerline.map((point) => ({
+    x: point.x * scale + offsetX,
+    y: point.y * scale + offsetY,
   }));
 
   // Smooth the centerline
-  const smoothedCenterline = smoothPath(centerline, 2);
+  const smoothedCenterline = smoothPath(transformedCenterline, 2);
 
   // Create boundaries by offsetting perpendicular to the curve
   const outer = [];
@@ -203,6 +243,10 @@ function generateTrack(seed) {
     }
   }
 
+  // Remove self-intersections from boundaries
+  const cleanedOuter = removeSelfIntersections(outer);
+  const cleanedInner = removeSelfIntersections(inner);
+
   // Start position
   const startPoint = smoothedCenterline[0];
   const startNext = smoothedCenterline[1];
@@ -221,8 +265,8 @@ function generateTrack(seed) {
   );
 
   return {
-    outer,
-    inner,
+    outer: cleanedOuter,
+    inner: cleanedInner,
     centerline: smoothedCenterline,
     start: {
       x: startPoint.x,
@@ -293,6 +337,84 @@ function smoothPath(path, iterations) {
   }
 
   return smoothed;
+}
+
+// Remove self-intersections from a boundary path
+function removeSelfIntersections(path) {
+  if (path.length < 4) return path;
+
+  const cleaned = [...path];
+  let modified = true;
+
+  // Iterate until no more intersections found
+  while (modified) {
+    modified = false;
+
+    for (let i = 0; i < cleaned.length - 1; i++) {
+      const seg1Start = cleaned[i];
+      const seg1End = cleaned[i + 1];
+
+      // Check against non-adjacent segments (skip neighbors)
+      for (let j = i + 2; j < cleaned.length - 1; j++) {
+        // Don't check last segment against first (they're supposed to be close)
+        if (i === 0 && j === cleaned.length - 2) continue;
+
+        const seg2Start = cleaned[j];
+        const seg2End = cleaned[j + 1];
+
+        const intersection = getLineIntersection(
+          seg1Start.x,
+          seg1Start.y,
+          seg1End.x,
+          seg1End.y,
+          seg2Start.x,
+          seg2Start.y,
+          seg2End.x,
+          seg2End.y,
+        );
+
+        if (intersection) {
+          // Found intersection - remove the loop between them
+          // Keep points up to i+1, add intersection point, skip to j+1
+          const newPath = [
+            ...cleaned.slice(0, i + 1),
+            intersection,
+            ...cleaned.slice(j + 1),
+          ];
+
+          cleaned.length = 0;
+          cleaned.push(...newPath);
+          modified = true;
+          break;
+        }
+      }
+
+      if (modified) break;
+    }
+  }
+
+  return cleaned;
+}
+
+// Get intersection point of two line segments (if they intersect)
+function getLineIntersection(x1, y1, x2, y2, x3, y3, x4, y4) {
+  const denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+
+  // Lines are parallel
+  if (Math.abs(denom) < 0.0001) return null;
+
+  const t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denom;
+  const u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denom;
+
+  // Check if intersection is within both line segments
+  if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
+    return {
+      x: x1 + t * (x2 - x1),
+      y: y1 + t * (y2 - y1),
+    };
+  }
+
+  return null;
 }
 
 // ============================================
@@ -436,7 +558,7 @@ function drawTrack() {
 
   // Draw outer boundary line
   ctx.strokeStyle = "#121213";
-  ctx.lineWidth = 1;
+  ctx.lineWidth = 3;
   ctx.beginPath();
   if (track.outer.length > 0) {
     ctx.moveTo(track.outer[0].x, track.outer[0].y);
@@ -448,7 +570,7 @@ function drawTrack() {
 
   // Draw inner boundary line
   ctx.strokeStyle = "#121213";
-  ctx.lineWidth = 1;
+  ctx.lineWidth = 3;
   ctx.beginPath();
   if (track.inner.length > 0) {
     ctx.moveTo(track.inner[0].x, track.inner[0].y);
