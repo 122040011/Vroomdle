@@ -1,0 +1,211 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    min-height: 100vh;
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    padding: 20px;
+}
+
+.container {
+    max-width: 800px;
+    width: 100%;
+}
+
+/* Header Styles */
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.title {
+    font-size: 48px;
+    font-weight: 700;
+    color: #121213;
+    margin: 0 0 10px 0;
+    letter-spacing: 0.5px;
+}
+
+.subtitle {
+    font-size: 16px;
+    color: #787c7e;
+    margin: 0;
+    font-weight: 400;
+}
+
+/* Game Container */
+.game-container {
+    position: relative;
+    width: 800px;
+    margin: 0 auto;
+    border: 2px solid #d3d6da;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+#gameCanvas {
+    display: block;
+}
+
+/* Overlay Styles */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.95);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.overlay.hidden {
+    display: none;
+}
+
+.overlay-content {
+    text-align: center;
+    padding: 20px;
+}
+
+.overlay-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #121213;
+    margin: 0 0 16px 0;
+}
+
+.controls {
+    font-size: 16px;
+    color: #787c7e;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.controls p {
+    margin: 8px 0;
+}
+
+.controls strong {
+    color: #121213;
+    font-weight: 600;
+}
+
+.best-time {
+    font-size: 14px;
+    color: #538d4e;
+    font-weight: 600;
+    margin-top: 20px;
+}
+
+/* Win Screen Styles */
+.win-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: #538d4e;
+    margin: 0 0 16px 0;
+}
+
+.final-time {
+    font-size: 48px;
+    font-weight: 700;
+    color: #121213;
+    margin: 0 0 12px 0;
+}
+
+.new-best {
+    font-size: 16px;
+    color: #538d4e;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.new-best.hidden {
+    display: none;
+}
+
+/* Button Styles */
+.btn {
+    padding: 16px 48px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #ffffff;
+    background-color: #538d4e;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: background-color 0.2s;
+}
+
+.btn:hover {
+    background-color: #6aaa64;
+}
+
+.btn:active {
+    background-color: #4a7c44;
+}
+
+/* Timer Display */
+.timer-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.timer-container.hidden {
+    display: none;
+}
+
+.timer-box {
+    display: inline-block;
+    padding: 12px 24px;
+    background-color: #f5f5f5;
+    border: 2px solid #d3d6da;
+    border-radius: 4px;
+}
+
+.timer {
+    font-size: 24px;
+    font-weight: 700;
+    color: #121213;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Responsive Design */
+@media (max-width: 850px) {
+    .game-container {
+        width: 100%;
+    }
+
+    #gameCanvas {
+        width: 100%;
+        height: auto;
+    }
+
+    .title {
+        font-size: 36px;
+    }
+
+    .overlay-title {
+        font-size: 20px;
+    }
+
+    .win-title {
+        font-size: 28px;
+    }
+
+    .final-time {
+        font-size: 36px;
+    }
+}

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vroomdle - Racing Game</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1 class="title">VROOMDLE</h1>
+        <p class="subtitle">Race to the finish line</p>
+      </div>
+
+      <div class="game-container">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+        <div id="menuOverlay" class="overlay">
+          <div class="overlay-content">
+            <h2 class="overlay-title">How to Play</h2>
+            <div class="controls">
+              <p><strong>W</strong> - Accelerate</p>
+              <p><strong>S</strong> - Brake / Reverse</p>
+              <p><strong>A</strong> - Turn Left</p>
+              <p><strong>D</strong> - Turn Right</p>
+            </div>
+            <p id="bestTimeDisplay" class="best-time"></p>
+            <button id="startButton" class="btn">Start Race</button>
+          </div>
+        </div>
+
+        <div id="winOverlay" class="overlay hidden">
+          <div class="overlay-content">
+            <h2 class="win-title">Finish!</h2>
+            <p id="finalTime" class="final-time"></p>
+            <p id="newBestTime" class="new-best hidden">New Best Time! 🏆</p>
+            <button id="restartButton" class="btn">Race Again</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="timerDisplay" class="timer-container hidden">
+        <div class="timer-box">
+          <span id="currentTime" class="timer">0.00s</span>
+        </div>
+      </div>
+    </div>
+
+    <script src="game.js"></script>
+  </body>
+</html>
