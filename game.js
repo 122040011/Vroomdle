@@ -246,8 +246,14 @@ function updateGame() {
   if (keys.w) {
     car.speed = Math.min(car.speed + car.acceleration, car.maxSpeed);
   } else if (keys.s) {
-    car.speed = Math.max(car.speed - car.acceleration * 5, -car.maxSpeed * 0.5);
-  } else {
+    if (car.speed > 0)
+      car.speed = Math.max(
+        car.speed - car.acceleration * 5,
+        -car.maxSpeed * 0.15,
+      );
+    else
+      car.speed = Math.max(car.speed - car.acceleration, -car.maxSpeed * 0.15);
+  } else if (car.speed > 0.1) {
     car.speed -= car.friction;
   }
 
