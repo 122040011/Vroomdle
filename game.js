@@ -144,10 +144,6 @@ function generateTrack(seed) {
     // Limit segment length based on curvature to prevent excessive turning
     if (Math.abs(curvature) > 0.001) {
       // Calculate how long the segment can be given the curvature
-      // Total angle change = curvature * numSteps
-      // numSteps = length / 5 (5 pixels per step)
-      // So: angle change = curvature * (length / 5)
-      // Rearranged: max length = (maxAngleChange * 5) / |curvature|
       const maxLengthForCurvature = (maxAngleChange * 5) / Math.abs(curvature);
       segmentLength = Math.min(segmentLength, maxLengthForCurvature);
     }
@@ -444,8 +440,9 @@ function handleKeyUp(e) {
 // Game Functions
 function startGame() {
   // Reset car to start position
-  car.x = track.start.x;
-  car.y = track.start.y;
+  const startingDistance = 25;
+  car.x = track.start.x + Math.cos(track.start.angle) * startingDistance;
+  car.y = track.start.y + Math.sin(track.start.angle) * startingDistance;
   car.angle = track.start.angle;
   car.speed = 0;
 
@@ -531,7 +528,7 @@ function loadBestTime() {
 // ============================================
 function drawTrack() {
   // Background
-  ctx.fillStyle = "#f5f5f5";
+  ctx.fillStyle = "#87ac83";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   // Draw track surface between boundaries
@@ -580,11 +577,19 @@ function drawTrack() {
   }
   ctx.stroke();
 
+  //Draw starting boundary
+  ctx.strokeStyle = "#121213";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(track.outer[0].x, track.outer[0].y);
+  ctx.lineTo(track.inner[0].x, track.inner[0].y);
+  ctx.stroke();
+
   // Draw finish line
   const finish = track.finish;
   ctx.save();
   ctx.translate(finish.x, finish.y);
-  ctx.rotate(finish.angle);
+  ctx.rotate(finish.angle + Math.PI / 2);
 
   // Checkered pattern
   const checkSize = finish.width / 6;
@@ -686,6 +691,14 @@ function checkCollision(x, y) {
     }
   }
 
+  //Check distance to starting line
+  let dist = pointToLineDistance(x, y, track.outer[0], track.inner[0]);
+  if (dist < collisionDistance) {
+    if (isPointOutsideTrack(x, y, track.outer[0], track.inner[0])) {
+      return true;
+    }
+  }
+
   return false;
 }
 
@@ -713,12 +726,16 @@ function isPointOutsideTrack(px, py, p1, p2) {
 }
 
 function checkFinish() {
-  const finish = track.finish;
-  const dx = car.x - finish.x;
-  const dy = car.y - finish.y;
-  const distance = Math.sqrt(dx * dx + dy * dy);
-
-  return distance < finish.width / 2 && car.speed > 0;
+  let dist = pointToLineDistance(
+    car.x,
+    car.y,
+    track.outer.at(-1),
+    track.inner.at(-1),
+  );
+  if (dist < 15) {
+    return true;
+  }
+  return false;
 }
 
 // ============================================
