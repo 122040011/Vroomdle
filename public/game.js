@@ -1,5 +1,8 @@
 // Game State
 let gameState = "menu"; // menu, playing, won
+let uid = null;
+let username = null;
+const serverUrl = null;
 let time = 0;
 let bestTime = null;
 let timerInterval = null;
@@ -446,6 +449,8 @@ function startGame() {
   car.angle = track.start.angle;
   car.speed = 0;
 
+  //POST trial +1
+
   // Reset time
   time = 0;
   updateTimeDisplay();
@@ -750,6 +755,10 @@ function gameLoop() {
 
   animationFrameId = requestAnimationFrame(gameLoop);
 }
+
+// ============================================
+// DB Request
+// ============================================
 
 // Start the game loop
 gameLoop();
