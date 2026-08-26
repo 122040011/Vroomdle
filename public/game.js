@@ -7,7 +7,7 @@ let time = 0;
 let bestTime = null;
 let timerInterval = null;
 let animationFrameId = null;
-let seed = Date.now();
+let seed = getDailySeed();
 
 // Canvas setup
 const canvas = document.getElementById("gameCanvas");
@@ -23,6 +23,7 @@ const car = {
   acceleration: 0.003,
   friction: 0.001,
   turnSpeed: 0.02,
+  currentSegmentIndex: 0, // Track which segment the car is on
 };
 
 // Keys pressed
@@ -35,8 +36,9 @@ const keys = {
   l: false,
 };
 
-// Track data - will be generated
-let track = null;
+// Track data - will be generated as segments
+let trackSegments = [];
+let trackMetadata = {};
 
 // DOM Elements
 const menuOverlay = document.getElementById("menuOverlay");
@@ -58,7 +60,7 @@ restartButton.addEventListener("click", startGame);
 // Initialize
 loadBestTime();
 updateBestTimeDisplay();
-track = generateTrack(seed);
+generateTrackSegments(seed);
 
 // ============================================
 // SEEDED RANDOM NUMBER GENERATOR
@@ -80,79 +82,63 @@ function getDailySeed() {
 }
 
 // ============================================
-// PROCEDURAL TRACK GENERATION
+// SEGMENT-BASED TRACK GENERATION
 // ============================================
-function generateTrack(seed) {
+function generateTrackSegments(seed) {
   const rng = seededRandom(seed);
 
-  const trackWidth = 100;
+  const trackWidth = 300;
   const canvasWidth = 800;
   const canvasHeight = 600;
 
   // Roll for total track length
-  const minTrackLength = 4000;
-  const maxTrackLength = 8000;
+  const minTrackLength = 2000;
+  const maxTrackLength = 3500;
   const targetLength =
     minTrackLength + rng() * (maxTrackLength - minTrackLength);
 
   // Track generation parameters
-  const minSegmentLength = 300;
-  const maxSegmentLength = 850;
-  const minCurvature = -0.05; // Max left curve
-  const maxCurvature = 0.05; // Max right curve
+  const minSegmentLength = 200;
+  const maxSegmentLength = 400;
+  const minCurvature = -0.04;
+  const maxCurvature = 0.04;
 
   // Starting state
   let x = canvasWidth / 2;
-  let y = 80;
+  let y = 100;
   let currentAngle = Math.PI / 2; // Start facing down
   let totalLength = 0;
 
-  const centerline = [];
-  centerline.push({ x, y });
-  let previousSegmentDirection = null;
+  const segments = [];
+  let segmentIndex = 0;
 
   // Generate segments until we reach target length
   while (totalLength < targetLength) {
-    // Roll for turn type first
+    // Roll for turn type
     const turnRoll = rng();
-    const directions = ["left", "right", "straight", "straight"];
-    const availableDirections = directions.filter(
-      (dir) => dir != previousSegmentDirection,
-    );
-    const segmentDirection =
-      availableDirections[Math.floor(rng() * availableDirections.length)];
-    previousSegmentDirection = segmentDirection;
-
     let curvature;
 
-    if (segmentDirection == "left") {
-      // Left turn
-      curvature = minCurvature * (0.5 + rng() * 0.5);
-    } else if (segmentDirection == "right") {
-      // Right turn
-      curvature = maxCurvature * (0.5 + rng() * 0.5);
+    if (turnRoll < 0.3) {
+      curvature = minCurvature * (0.5 + rng() * 0.5); // Left
+    } else if (turnRoll < 0.6) {
+      curvature = maxCurvature * (0.5 + rng() * 0.5); // Right
     } else {
-      // Straight or very gentle curve
-      curvature = (rng() - 0.5) * 0.008;
-      console.log("straight\n");
+      curvature = (rng() - 0.5) * 0.01; // Straight
     }
-    console.log("segment");
-    // Calculate max angle change allowed (140 degrees = ~2.44 radians)
-    const maxAngleChange = 2.44;
 
     // Roll for segment length
     let segmentLength =
       minSegmentLength + rng() * (maxSegmentLength - minSegmentLength);
 
-    // Limit segment length based on curvature to prevent excessive turning
+    // Limit based on curvature
+    const maxAngleChange = 2.2;
     if (Math.abs(curvature) > 0.001) {
-      // Calculate how long the segment can be given the curvature
       const maxLengthForCurvature = (maxAngleChange * 5) / Math.abs(curvature);
       segmentLength = Math.min(segmentLength, maxLengthForCurvature);
     }
 
-    // Generate this segment
-    const segment = generateSegment(
+    // Generate centerline for this segment
+    const centerline = generateSegmentCenterline(
       x,
       y,
       currentAngle,
@@ -160,67 +146,92 @@ function generateTrack(seed) {
       curvature,
     );
 
-    // Add segment points to centerline (skip first point to avoid duplicates)
-    for (let i = 1; i < segment.points.length; i++) {
-      centerline.push(segment.points[i]);
-    }
+    // Create boundaries
+    const { outer, inner } = createSegmentBoundaries(centerline, trackWidth);
 
-    // Update state for next segment - use ACTUAL end position
-    x = segment.endX;
-    y = segment.endY;
-    currentAngle = segment.endAngle; // Continue from where we left off
+    // Apply self-intersection clipping to THIS segment only
+    const cleanedOuter = removeSelfIntersections(outer);
+    const cleanedInner = removeSelfIntersections(inner);
 
+    // Store segment with entry and exit points
+    const entryPoint = {
+      x: centerline[0].x,
+      y: centerline[0].y,
+      angle: currentAngle,
+    };
+    const lastIdx = centerline.length - 1;
+    const exitAngle = Math.atan2(
+      centerline[lastIdx].y - centerline[lastIdx - 1].y,
+      centerline[lastIdx].x - centerline[lastIdx - 1].x,
+    );
+    const exitPoint = {
+      x: centerline[lastIdx].x,
+      y: centerline[lastIdx].y,
+      angle: exitAngle,
+    };
+
+    segments.push({
+      index: segmentIndex,
+      centerline,
+      outer: cleanedOuter,
+      inner: cleanedInner,
+      entryPoint,
+      exitPoint,
+      length: segmentLength,
+    });
+
+    // Update for next segment
+    x = exitPoint.x;
+    y = exitPoint.y;
+    currentAngle = exitPoint.angle;
     totalLength += segmentLength;
+    segmentIndex++;
   }
 
-  // Find bounds of the raw centerline
-  let minX = Infinity,
-    maxX = -Infinity;
-  let minY = Infinity,
-    maxY = -Infinity;
+  // Transform and scale all segments to fit canvas
+  transformSegmentsToFit(segments, canvasWidth, canvasHeight);
 
-  for (const point of centerline) {
-    minX = Math.min(minX, point.x);
-    maxX = Math.max(maxX, point.x);
-    minY = Math.min(minY, point.y);
-    maxY = Math.max(maxY, point.y);
+  trackSegments = segments;
+  trackMetadata = {
+    totalSegments: segments.length,
+    trackWidth,
+  };
+}
+
+function generateSegmentCenterline(
+  startX,
+  startY,
+  startAngle,
+  length,
+  curvature,
+) {
+  const points = [];
+  const numSteps = Math.ceil(length / 5);
+  const stepLength = length / numSteps;
+
+  let x = startX;
+  let y = startY;
+  let angle = startAngle;
+
+  points.push({ x, y });
+
+  for (let i = 0; i < numSteps; i++) {
+    angle += curvature;
+    x += Math.cos(angle) * stepLength;
+    y += Math.sin(angle) * stepLength;
+    points.push({ x, y });
   }
 
-  const trackNaturalWidth = maxX - minX;
-  const trackNaturalHeight = maxY - minY;
+  return points;
+}
 
-  // Calculate scale factor to fit track in canvas with margin
-  const margin = 80;
-  const availableWidth = canvasWidth - 2 * margin;
-  const availableHeight = canvasHeight - 2 * margin;
-
-  const scaleX = availableWidth / trackNaturalWidth;
-  const scaleY = availableHeight / trackNaturalHeight;
-  const scale = Math.min(scaleX, scaleY); // Use smaller scale to fit both dimensions
-
-  // Calculate translation to center the track
-  const scaledWidth = trackNaturalWidth * scale;
-  const scaledHeight = trackNaturalHeight * scale;
-  const offsetX = margin + (availableWidth - scaledWidth) / 2 - minX * scale;
-  const offsetY = margin + (availableHeight - scaledHeight) / 2 - minY * scale;
-
-  // Transform all centerline points to fit canvas
-  const transformedCenterline = centerline.map((point) => ({
-    x: point.x * scale + offsetX,
-    y: point.y * scale + offsetY,
-  }));
-
-  // Smooth the centerline
-  const smoothedCenterline = smoothPath(transformedCenterline, 2);
-
-  // Create boundaries by offsetting perpendicular to the curve
+function createSegmentBoundaries(centerline, trackWidth) {
   const outer = [];
   const inner = [];
 
-  for (let i = 0; i < smoothedCenterline.length; i++) {
-    const p1 = smoothedCenterline[i];
-    const p2 =
-      smoothedCenterline[Math.min(i + 1, smoothedCenterline.length - 1)];
+  for (let i = 0; i < centerline.length; i++) {
+    const p1 = centerline[i];
+    const p2 = centerline[Math.min(i + 1, centerline.length - 1)];
 
     const dx = p2.x - p1.x;
     const dy = p2.y - p1.y;
@@ -242,100 +253,66 @@ function generateTrack(seed) {
     }
   }
 
-  // Remove self-intersections from boundaries
-  const cleanedOuter = removeSelfIntersections(outer);
-  const cleanedInner = removeSelfIntersections(inner);
-
-  // Start position
-  const startPoint = smoothedCenterline[0];
-  const startNext = smoothedCenterline[1];
-  const startAngle = Math.atan2(
-    startNext.y - startPoint.y,
-    startNext.x - startPoint.x,
-  );
-
-  // Finish line at the end
-  const finishIndex = smoothedCenterline.length - 1;
-  const finishPoint = smoothedCenterline[finishIndex];
-  const finishPrev = smoothedCenterline[finishIndex - 1];
-  const finishAngle = Math.atan2(
-    finishPoint.y - finishPrev.y,
-    finishPoint.x - finishPrev.x,
-  );
-
-  return {
-    outer: cleanedOuter,
-    inner: cleanedInner,
-    centerline: smoothedCenterline,
-    start: {
-      x: startPoint.x,
-      y: startPoint.y,
-      angle: startAngle,
-    },
-    finish: {
-      x: finishPoint.x,
-      y: finishPoint.y,
-      width: trackWidth,
-      angle: finishAngle,
-    },
-  };
+  return { outer, inner };
 }
 
-// Generate a single segment with consistent curvature
-function generateSegment(startX, startY, startAngle, length, curvature) {
-  const points = [];
-  const numSteps = Math.ceil(length / 5); // 5 pixels per step
-  const stepLength = length / numSteps;
+function transformSegmentsToFit(segments, canvasWidth, canvasHeight) {
+  // Find bounds of all centerline points
+  let minX = Infinity,
+    maxX = -Infinity;
+  let minY = Infinity,
+    maxY = -Infinity;
 
-  let x = startX;
-  let y = startY;
-  let angle = startAngle;
-
-  points.push({ x, y });
-
-  for (let i = 0; i < numSteps; i++) {
-    // Apply curvature
-    angle += curvature;
-
-    // Move forward
-    x += Math.cos(angle) * stepLength;
-    y += Math.sin(angle) * stepLength;
-
-    points.push({ x, y });
-  }
-
-  return {
-    points,
-    endX: x,
-    endY: y,
-    endAngle: angle, // Pass angle to next segment
-  };
-}
-
-// Smooth the path using weighted averaging
-function smoothPath(path, iterations) {
-  let smoothed = [...path];
-
-  for (let iter = 0; iter < iterations; iter++) {
-    const newPath = [smoothed[0]]; // Keep first point
-
-    for (let i = 1; i < smoothed.length - 1; i++) {
-      const prev = smoothed[i - 1];
-      const curr = smoothed[i];
-      const next = smoothed[i + 1];
-
-      // Weighted average: current point has more weight
-      newPath.push({
-        x: (prev.x + curr.x * 2 + next.x) / 4,
-        y: (prev.y + curr.y * 2 + next.y) / 4,
-      });
+  for (const seg of segments) {
+    for (const point of seg.centerline) {
+      minX = Math.min(minX, point.x);
+      maxX = Math.max(maxX, point.x);
+      minY = Math.min(minY, point.y);
+      maxY = Math.max(maxY, point.y);
     }
-
-    newPath.push(smoothed[smoothed.length - 1]); // Keep last point
-    smoothed = newPath;
   }
 
-  return smoothed;
+  const trackNaturalWidth = maxX - minX;
+  const trackNaturalHeight = maxY - minY;
+
+  const margin = 80;
+  const availableWidth = canvasWidth - 2 * margin;
+  const availableHeight = canvasHeight - 2 * margin;
+
+  const scaleX = availableWidth / trackNaturalWidth;
+  const scaleY = availableHeight / trackNaturalHeight;
+  const scale = Math.min(scaleX, scaleY);
+
+  const scaledWidth = trackNaturalWidth * scale;
+  const scaledHeight = trackNaturalHeight * scale;
+  const offsetX = margin + (availableWidth - scaledWidth) / 2 - minX * scale;
+  const offsetY = margin + (availableHeight - scaledHeight) / 2 - minY * scale;
+
+  // Transform all segments
+  for (const seg of segments) {
+    seg.centerline = seg.centerline.map((p) => ({
+      x: p.x * scale + offsetX,
+      y: p.y * scale + offsetY,
+    }));
+    seg.outer = seg.outer.map((p) => ({
+      x: p.x * scale + offsetX,
+      y: p.y * scale + offsetY,
+    }));
+    seg.inner = seg.inner.map((p) => ({
+      x: p.x * scale + offsetX,
+      y: p.y * scale + offsetY,
+    }));
+    seg.entryPoint = {
+      x: seg.entryPoint.x * scale + offsetX,
+      y: seg.entryPoint.y * scale + offsetY,
+      angle: seg.entryPoint.angle,
+    };
+    seg.exitPoint = {
+      x: seg.exitPoint.x * scale + offsetX,
+      y: seg.exitPoint.y * scale + offsetY,
+      angle: seg.exitPoint.angle,
+    };
+  }
 }
 
 // Remove self-intersections from a boundary path
@@ -345,7 +322,6 @@ function removeSelfIntersections(path) {
   const cleaned = [...path];
   let modified = true;
 
-  // Iterate until no more intersections found
   while (modified) {
     modified = false;
 
@@ -353,9 +329,7 @@ function removeSelfIntersections(path) {
       const seg1Start = cleaned[i];
       const seg1End = cleaned[i + 1];
 
-      // Check against non-adjacent segments (skip neighbors)
       for (let j = i + 2; j < cleaned.length - 1; j++) {
-        // Don't check last segment against first (they're supposed to be close)
         if (i === 0 && j === cleaned.length - 2) continue;
 
         const seg2Start = cleaned[j];
@@ -373,8 +347,6 @@ function removeSelfIntersections(path) {
         );
 
         if (intersection) {
-          // Found intersection - remove the loop between them
-          // Keep points up to i+1, add intersection point, skip to j+1
           const newPath = [
             ...cleaned.slice(0, i + 1),
             intersection,
@@ -395,17 +367,14 @@ function removeSelfIntersections(path) {
   return cleaned;
 }
 
-// Get intersection point of two line segments (if they intersect)
 function getLineIntersection(x1, y1, x2, y2, x3, y3, x4, y4) {
   const denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
 
-  // Lines are parallel
   if (Math.abs(denom) < 0.0001) return null;
 
   const t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denom;
   const u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denom;
 
-  // Check if intersection is within both line segments
   if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
     return {
       x: x1 + t * (x2 - x1),
@@ -424,7 +393,6 @@ function getDailySeedString() {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
-// Keyboard Controls
 function handleKeyDown(e) {
   const key = e.key.toLowerCase();
   if (key in keys) {
@@ -440,16 +408,16 @@ function handleKeyUp(e) {
   }
 }
 
-// Game Functions
 function startGame() {
-  // Reset car to start position
-  const startingDistance = 25;
-  car.x = track.start.x + Math.cos(track.start.angle) * startingDistance;
-  car.y = track.start.y + Math.sin(track.start.angle) * startingDistance;
-  car.angle = track.start.angle;
-  car.speed = 0;
+  if (trackSegments.length === 0) return;
 
-  //POST trial +1
+  // Reset car to start of first segment
+  const firstSegment = trackSegments[0];
+  car.x = firstSegment.entryPoint.x;
+  car.y = firstSegment.entryPoint.y;
+  car.angle = firstSegment.entryPoint.angle;
+  car.speed = 0;
+  car.currentSegmentIndex = 0;
 
   // Reset time
   time = 0;
@@ -468,7 +436,7 @@ function startGame() {
     updateTimeDisplay();
   }, 10);
 
-  // Start game loop if not running
+  // Start game loop
   if (!animationFrameId) {
     gameLoop();
   }
@@ -477,16 +445,13 @@ function startGame() {
 function endGame() {
   gameState = "won";
 
-  // Stop timer
   if (timerInterval) {
     clearInterval(timerInterval);
     timerInterval = null;
   }
 
-  // Hide timer display
   timerDisplay.classList.add("hidden");
 
-  // Update best time
   const isNewBest = !bestTime || time < bestTime;
   if (isNewBest) {
     bestTime = time;
@@ -496,7 +461,6 @@ function endGame() {
     newBestTimeDisplay.classList.add("hidden");
   }
 
-  // Show win overlay
   finalTimeDisplay.textContent = time.toFixed(2) + "s";
   winOverlay.classList.remove("hidden");
   updateBestTimeDisplay();
@@ -529,81 +493,87 @@ function loadBestTime() {
 }
 
 // ============================================
-// DRAWING FUNCTIONS
+// SEGMENT-BASED RENDERING (Bottom-Up)
 // ============================================
 function drawTrack() {
   // Background
-  ctx.fillStyle = "#87ac83";
+  ctx.fillStyle = "#f5f5f5";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Draw track surface between boundaries
-  ctx.fillStyle = "#e8e8e8";
-  ctx.beginPath();
+  // Draw each segment bottom-up (earlier segments first)
+  for (let i = 0; i < trackSegments.length; i++) {
+    const segment = trackSegments[i];
+    const isCurrent = i === car.currentSegmentIndex;
 
-  // Draw outer boundary
-  if (track.outer.length > 0) {
-    ctx.moveTo(track.outer[0].x, track.outer[0].y);
-    for (let i = 1; i < track.outer.length; i++) {
-      ctx.lineTo(track.outer[i].x, track.outer[i].y);
+    // Draw track surface for this segment
+    ctx.fillStyle = isCurrent ? "#dcdcdc" : "#e8e8e8";
+    ctx.beginPath();
+
+    // Draw outer boundary
+    if (segment.outer.length > 0) {
+      ctx.moveTo(segment.outer[0].x, segment.outer[0].y);
+      for (let j = 1; j < segment.outer.length; j++) {
+        ctx.lineTo(segment.outer[j].x, segment.outer[j].y);
+      }
     }
-  }
 
-  // Connect to inner boundary (reversed)
-  if (track.inner.length > 0) {
-    for (let i = track.inner.length - 1; i >= 0; i--) {
-      ctx.lineTo(track.inner[i].x, track.inner[i].y);
+    // Connect to inner boundary (reversed)
+    if (segment.inner.length > 0) {
+      for (let j = segment.inner.length - 1; j >= 0; j--) {
+        ctx.lineTo(segment.inner[j].x, segment.inner[j].y);
+      }
     }
-  }
 
-  ctx.closePath();
-  ctx.fill();
+    ctx.closePath();
+    ctx.fill();
 
-  // Draw outer boundary line
-  ctx.strokeStyle = "#121213";
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  if (track.outer.length > 0) {
-    ctx.moveTo(track.outer[0].x, track.outer[0].y);
-    for (let i = 1; i < track.outer.length; i++) {
-      ctx.lineTo(track.outer[i].x, track.outer[i].y);
+    // Draw boundaries
+    ctx.strokeStyle = isCurrent ? "#0d0d0d" : "#121213";
+    ctx.lineWidth = isCurrent ? 7 : 3;
+
+    // Outer boundary line
+    ctx.beginPath();
+    if (segment.outer.length > 0) {
+      ctx.moveTo(segment.outer[0].x, segment.outer[0].y);
+      for (let j = 1; j < segment.outer.length; j++) {
+        ctx.lineTo(segment.outer[j].x, segment.outer[j].y);
+      }
     }
-  }
-  ctx.stroke();
+    ctx.stroke();
 
-  // Draw inner boundary line
-  ctx.strokeStyle = "#121213";
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  if (track.inner.length > 0) {
-    ctx.moveTo(track.inner[0].x, track.inner[0].y);
-    for (let i = 1; i < track.inner.length; i++) {
-      ctx.lineTo(track.inner[i].x, track.inner[i].y);
+    // Inner boundary line
+    ctx.beginPath();
+    if (segment.inner.length > 0) {
+      ctx.moveTo(segment.inner[0].x, segment.inner[0].y);
+      for (let j = 1; j < segment.inner.length; j++) {
+        ctx.lineTo(segment.inner[j].x, segment.inner[j].y);
+      }
     }
-  }
-  ctx.stroke();
-
-  //Draw starting boundary
-  ctx.strokeStyle = "#121213";
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(track.outer[0].x, track.outer[0].y);
-  ctx.lineTo(track.inner[0].x, track.inner[0].y);
-  ctx.stroke();
-
-  // Draw finish line
-  const finish = track.finish;
-  ctx.save();
-  ctx.translate(finish.x, finish.y);
-  ctx.rotate(finish.angle + Math.PI / 2);
-
-  // Checkered pattern
-  const checkSize = finish.width / 6;
-  for (let i = 0; i < 6; i++) {
-    ctx.fillStyle = i % 2 === 0 ? "#538d4e" : "#ffffff";
-    ctx.fillRect(-finish.width / 2 + i * checkSize, -4, checkSize, 8);
+    ctx.stroke();
   }
 
-  ctx.restore();
+  // Draw finish line on last segment
+  if (trackSegments.length > 0) {
+    const lastSegment = trackSegments[trackSegments.length - 1];
+    const finishPoint = lastSegment.exitPoint;
+
+    ctx.save();
+    ctx.translate(finishPoint.x, finishPoint.y);
+    ctx.rotate(finishPoint.angle);
+
+    const checkSize = trackMetadata.trackWidth / 6;
+    for (let i = 0; i < 6; i++) {
+      ctx.fillStyle = i % 2 === 0 ? "#538d4e" : "#ffffff";
+      ctx.fillRect(
+        -trackMetadata.trackWidth / 2 + i * checkSize,
+        -4,
+        checkSize,
+        8,
+      );
+    }
+
+    ctx.restore();
+  }
 }
 
 function drawCar() {
@@ -620,10 +590,19 @@ function drawCar() {
   ctx.fillRect(12, -6, 6, 12);
 
   ctx.restore();
+
+  // Debug: Show current segment
+  ctx.fillStyle = "#121213";
+  ctx.font = "14px Arial";
+  ctx.fillText(
+    `Segment ${car.currentSegmentIndex + 1}/${trackSegments.length}`,
+    10,
+    20,
+  );
 }
 
 // ============================================
-// PHYSICS AND COLLISION
+// PHYSICS AND SEGMENT-BASED COLLISION
 // ============================================
 function updateGame() {
   if (gameState !== "playing") return;
@@ -644,7 +623,7 @@ function updateGame() {
     car.speed -= car.friction;
   }
 
-  // Handle turning (only when moving)
+  // Handle turning
   if (Math.abs(car.speed) > 0.1) {
     if (keys.a || keys.j) {
       car.angle -= car.turnSpeed;
@@ -658,53 +637,74 @@ function updateGame() {
   const newX = car.x + Math.cos(car.angle) * car.speed;
   const newY = car.y + Math.sin(car.angle) * car.speed;
 
-  // Check collision
-  if (!checkCollision(newX, newY)) {
+  // Check collision with CURRENT segment only
+  const currentSegment = trackSegments[car.currentSegmentIndex];
+  if (!checkSegmentCollision(newX, newY, currentSegment)) {
     car.x = newX;
     car.y = newY;
+
+    // Check for segment transition
+    updateCurrentSegment();
   } else {
-    // Hit wall - bounce back
+    // Hit wall
     car.speed *= -0.3;
   }
 
-  // Check if finished
+  // Check if finished (reached last segment exit)
   if (checkFinish() && time > 1) {
     endGame();
   }
 }
 
-function checkCollision(x, y) {
+function checkSegmentCollision(x, y, segment) {
   const collisionDistance = 15;
 
-  // Check distance to outer boundary
-  for (let i = 0; i < track.outer.length - 1; i++) {
-    const dist = pointToLineDistance(x, y, track.outer[i], track.outer[i + 1]);
+  // Check outer boundary
+  for (let i = 0; i < segment.outer.length - 1; i++) {
+    const dist = pointToLineDistance(
+      x,
+      y,
+      segment.outer[i],
+      segment.outer[i + 1],
+    );
     if (dist < collisionDistance) {
-      if (isPointOutsideTrack(x, y, track.outer[i], track.outer[i + 1])) {
+      if (isPointOutsideTrack(x, y, segment.outer[i], segment.outer[i + 1])) {
         return true;
       }
     }
   }
 
-  // Check distance to inner boundary
-  for (let i = 0; i < track.inner.length - 1; i++) {
-    const dist = pointToLineDistance(x, y, track.inner[i], track.inner[i + 1]);
+  // Check inner boundary
+  for (let i = 0; i < segment.inner.length - 1; i++) {
+    const dist = pointToLineDistance(
+      x,
+      y,
+      segment.inner[i],
+      segment.inner[i + 1],
+    );
     if (dist < collisionDistance) {
-      if (isPointOutsideTrack(x, y, track.inner[i], track.inner[i + 1])) {
+      if (isPointOutsideTrack(x, y, segment.inner[i], segment.inner[i + 1])) {
         return true;
       }
-    }
-  }
-
-  //Check distance to starting line
-  let dist = pointToLineDistance(x, y, track.outer[0], track.inner[0]);
-  if (dist < collisionDistance) {
-    if (isPointOutsideTrack(x, y, track.outer[0], track.inner[0])) {
-      return true;
     }
   }
 
   return false;
+}
+
+function updateCurrentSegment() {
+  // Check if car has moved to next segment
+  if (car.currentSegmentIndex < trackSegments.length - 1) {
+    const nextSegment = trackSegments[car.currentSegmentIndex + 1];
+    const distToNextEntry = Math.hypot(
+      car.x - nextSegment.entryPoint.x,
+      car.y - nextSegment.entryPoint.y,
+    );
+
+    if (distToNextEntry < 50) {
+      car.currentSegmentIndex++;
+    }
+  }
 }
 
 function pointToLineDistance(px, py, p1, p2) {
@@ -731,16 +731,13 @@ function isPointOutsideTrack(px, py, p1, p2) {
 }
 
 function checkFinish() {
-  let dist = pointToLineDistance(
-    car.x,
-    car.y,
-    track.outer.at(-1),
-    track.inner.at(-1),
-  );
-  if (dist < 15) {
-    return true;
-  }
-  return false;
+  if (car.currentSegmentIndex !== trackSegments.length - 1) return false;
+
+  const lastSegment = trackSegments[trackSegments.length - 1];
+  const finishPoint = lastSegment.exitPoint;
+  const distance = Math.hypot(car.x - finishPoint.x, car.y - finishPoint.y);
+
+  return distance < trackMetadata.trackWidth / 2 && car.speed > 0;
 }
 
 // ============================================
@@ -755,10 +752,6 @@ function gameLoop() {
 
   animationFrameId = requestAnimationFrame(gameLoop);
 }
-
-// ============================================
-// DB Request
-// ============================================
 
 // Start the game loop
 gameLoop();
