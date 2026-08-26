@@ -8,6 +8,8 @@ let bestTime = null;
 let timerInterval = null;
 let animationFrameId = null;
 let seed = getDailySeed();
+let scale = 1;
+let relativeScale = 1;
 
 // Canvas setup
 const canvas = document.getElementById("gameCanvas");
@@ -283,7 +285,8 @@ function transformSegmentsToFit(segments, canvasWidth, canvasHeight) {
 
   const scaleX = availableWidth / trackNaturalWidth;
   const scaleY = availableHeight / trackNaturalHeight;
-  const scale = Math.min(scaleX, scaleY);
+  scale = Math.min(scaleX, scaleY);
+  relativeScale = scale * 3;
 
   const scaledWidth = trackNaturalWidth * scale;
   const scaledHeight = trackNaturalHeight * scale;
@@ -586,11 +589,21 @@ function drawCar() {
 
   // Car body
   ctx.fillStyle = "#538d4e";
-  ctx.fillRect(-15, -10, 30, 20);
+  ctx.fillRect(
+    -15 * relativeScale,
+    -10 * relativeScale,
+    30 * relativeScale,
+    20 * relativeScale,
+  );
 
   // Car front indicator
   ctx.fillStyle = "#121213";
-  ctx.fillRect(12, -6, 6, 12);
+  ctx.fillRect(
+    12 * relativeScale,
+    -6 * relativeScale,
+    6 * relativeScale,
+    12 * relativeScale,
+  );
 
   ctx.restore();
 
@@ -687,7 +700,7 @@ function updateGame() {
 }
 
 function checkSegmentCollision(x, y, segment) {
-  const collisionDistance = 15;
+  const collisionDistance = 15 * relativeScale;
 
   // Check outer boundary
   for (let i = 0; i < segment.outer.length - 1; i++) {
@@ -868,6 +881,10 @@ function gameLoop() {
 
   animationFrameId = requestAnimationFrame(gameLoop);
 }
+
+// ============================================
+// Connection Request
+// ============================================
 
 // Start the game loop
 gameLoop();
