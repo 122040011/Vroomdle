@@ -47,50 +47,21 @@ body {
   font-weight: 400;
 }
 
-/* Main Game Area - Three Column Layout */
+/* Main Game Area - Centered */
 .main-game-area {
-  display: grid;
-  grid-template-columns: auto 800px auto;
+  display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: center;
   width: 100%;
-  justify-content: center;
-}
-
-/* Left Controls */
-.left-controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.side-restart-btn {
-  width: 56px;
-  height: 56px;
-  background-color: #538d4e;
-  border: 2px solid #d3d6da;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffffff;
-  transition: all 0.2s;
-}
-
-.side-restart-btn:hover {
-  background-color: #6aaa64;
-  transform: scale(1.05);
-}
-
-.side-restart-btn:active {
-  background-color: #4a7c44;
-  transform: scale(0.95);
+  position: relative;
 }
 
 /* Center Game */
 .center-game {
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .game-container {
@@ -99,40 +70,28 @@ body {
   border: 2px solid #d3d6da;
   border-radius: 4px;
   overflow: hidden;
-}
-
-.gameModeSelectionContainer {
-  position: relative;
-  width: 200px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: horizontal;
-  justify-content: center;
+  z-index: 10;
 }
 
 #gameCanvas {
   display: block;
 }
 
-/* Right Leaderboard */
-.right-leaderboard {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  position: relative;
-  height: 600px;
-}
-
+/* Leaderboard Panel - Slides Behind Canvas from Right */
 .leaderboard-panel {
+  position: absolute;
+  right: 0;
+  top: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   height: 600px;
   transition: transform 0.3s ease;
-  z-index: 1;
+  transform: translateX(280px);
+  z-index: 5;
 }
 
 .leaderboard-panel.open {
-  transform: translateX(-280px);
+  transform: translateX(40px);
 }
 
 .leaderboard-toggle {
@@ -140,17 +99,18 @@ body {
   height: 80px;
   background-color: #538d4e;
   border: 2px solid #d3d6da;
-  border-left: none;
-  border-radius: 0 8px 8px 0;
+  border-right: none;
+  border-radius: 8px 0 0 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #ffffff;
   transition: all 0.2s;
-  clip-path: polygon(0 0, 100% 20%, 100% 80%, 0 100%);
-  padding-left: 8px;
+  clip-path: polygon(0 0, 0 100%, 100% 80%, 100% 20%);
+  padding-right: 8px;
   flex-shrink: 0;
+  margin-top: 260px;
 }
 
 .leaderboard-toggle:hover {
@@ -171,12 +131,11 @@ body {
   height: 600px;
   background-color: #ffffff;
   border: 2px solid #d3d6da;
-  border-left: none;
-  border-radius: 0 4px 4px 0;
+  border-right: none;
+  border-radius: 4px 0 0 4px;
   padding: 20px;
   overflow-y: auto;
   flex-shrink: 0;
-  z-index: 1;
 }
 
 .leaderboard-title {
@@ -357,8 +316,6 @@ body {
   text-transform: uppercase;
   letter-spacing: 1px;
   transition: background-color 0.2s;
-  margin-left: 30px;
-  margin-right: 30px;
 }
 
 .btn:hover {
@@ -370,15 +327,6 @@ body {
 }
 
 /* Timer Display */
-.timer-container {
-  text-align: center;
-  margin-top: 20px;
-}
-
-.timer-container.hidden {
-  display: none;
-}
-
 .timer-box {
   display: inline-block;
   padding: 12px 24px;
@@ -397,24 +345,22 @@ body {
 /* Responsive Design */
 @media (max-width: 850px) {
   .main-game-area {
-    grid-template-columns: 1fr;
-    gap: 16px;
+    flex-direction: column;
   }
 
-  .left-controls,
-  .right-leaderboard {
-    display: none;
+  .leaderboard-panel {
+    position: relative;
+    transform: translateX(0);
+    margin-top: 16px;
   }
 
   .game-container {
     width: 100%;
-    z-index: 10;
   }
 
   #gameCanvas {
     width: 100%;
     height: auto;
-    z-index: 10;
   }
 
   .title {

@@ -50,7 +50,6 @@ const winOverlay = document.getElementById("winOverlay");
 // const timerDisplay = document.getElementById("timerDisplay");
 const startButton = document.getElementById("startButton");
 const restartButton = document.getElementById("restartButton");
-const sideRestartButton = document.getElementById("sideRestartButton");
 const currentTimeDisplay = document.getElementById("currentTime");
 const finalTimeDisplay = document.getElementById("finalTime");
 const bestTimeDisplay = document.getElementById("bestTimeDisplay");
@@ -63,11 +62,6 @@ window.addEventListener("keydown", handleKeyDown);
 window.addEventListener("keyup", handleKeyUp);
 startButton.addEventListener("click", startGame);
 restartButton.addEventListener("click", startGame);
-sideRestartButton.addEventListener("click", () => {
-  if (gameState === "playing") {
-    startGame();
-  }
-});
 
 // Leaderboard toggle
 leaderboardToggle.addEventListener("click", () => {
