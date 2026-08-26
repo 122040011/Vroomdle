@@ -3,7 +3,6 @@ import { neon } from "@neondatabase/serverless";
 // Initialize Neon SQL client
 // Connection string from Vercel environment variable
 const sql = neon(process.env.DATABASE_URL);
-console.log(process.env.DATABASE_URL);
 
 //Forward incrementing trials
 async function sendIncrementTrial(uid, username, date, channelID) {
