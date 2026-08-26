@@ -94,8 +94,8 @@ function generateTrackSegments(seed) {
   const canvasHeight = 600;
 
   // Roll for total track length
-  const minTrackLength = 2000;
-  const maxTrackLength = 3500;
+  const minTrackLength = 4000;
+  const maxTrackLength = 8000;
   const targetLength =
     minTrackLength + rng() * (maxTrackLength - minTrackLength);
 
@@ -552,6 +552,7 @@ function drawTrack() {
       }
     }
     ctx.stroke();
+    if (i === car.currentSegmentIndex + 1) drawCar();
   }
 
   // Draw finish line on last segment
@@ -864,7 +865,6 @@ function gameLoop() {
 
   drawTrack();
   updateGame();
-  drawCar();
 
   animationFrameId = requestAnimationFrame(gameLoop);
 }
