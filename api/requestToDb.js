@@ -2,9 +2,8 @@ import { neon } from "@neondatabase/serverless";
 
 // Initialize Neon SQL client
 // Connection string from Vercel environment variable
-const sql = neon(
-  "postgresql://neondb_owner:npg_CTsnIJpu8bV1@ep-restless-dream-az2uzm4p.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require",
-);
+const sql = neon(process.env.DATABASE_URL);
+console.log(process.env.DATABASE_URL);
 
 //Forward incrementing trials
 async function sendIncrementTrial(uid, username, date, channelID) {
