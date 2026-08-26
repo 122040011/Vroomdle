@@ -95,7 +95,7 @@ function generateTrackSegments(seed) {
 
   // Roll for total track length
   const minTrackLength = 4000;
-  const maxTrackLength = 8000;
+  const maxTrackLength = 6000;
   const targetLength =
     minTrackLength + rng() * (maxTrackLength - minTrackLength);
 
