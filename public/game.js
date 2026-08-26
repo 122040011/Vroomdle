@@ -47,19 +47,32 @@ let trackMetadata = {};
 // DOM Elements
 const menuOverlay = document.getElementById("menuOverlay");
 const winOverlay = document.getElementById("winOverlay");
-const timerDisplay = document.getElementById("timerDisplay");
+// const timerDisplay = document.getElementById("timerDisplay");
 const startButton = document.getElementById("startButton");
 const restartButton = document.getElementById("restartButton");
+const sideRestartButton = document.getElementById("sideRestartButton");
 const currentTimeDisplay = document.getElementById("currentTime");
 const finalTimeDisplay = document.getElementById("finalTime");
 const bestTimeDisplay = document.getElementById("bestTimeDisplay");
 const newBestTimeDisplay = document.getElementById("newBestTime");
+const leaderboardPanel = document.getElementById("leaderboardPanel");
+const leaderboardToggle = document.getElementById("leaderboardToggle");
 
 // Event Listeners
 window.addEventListener("keydown", handleKeyDown);
 window.addEventListener("keyup", handleKeyUp);
 startButton.addEventListener("click", startGame);
 restartButton.addEventListener("click", startGame);
+sideRestartButton.addEventListener("click", () => {
+  if (gameState === "playing") {
+    startGame();
+  }
+});
+
+// Leaderboard toggle
+leaderboardToggle.addEventListener("click", () => {
+  leaderboardPanel.classList.toggle("open");
+});
 
 // Initialize
 loadBestTime();
@@ -432,7 +445,7 @@ function startGame() {
   gameState = "playing";
   menuOverlay.classList.add("hidden");
   winOverlay.classList.add("hidden");
-  timerDisplay.classList.remove("hidden");
+  // timerDisplay.classList.remove("hidden");
 
   // Start timer
   if (timerInterval) clearInterval(timerInterval);
@@ -455,7 +468,7 @@ function endGame() {
     timerInterval = null;
   }
 
-  timerDisplay.classList.add("hidden");
+  // timerDisplay.classList.add("hidden");
 
   const isNewBest = !bestTime || time < bestTime;
   if (isNewBest) {
@@ -873,6 +886,7 @@ function checkFinish() {
     trackSegments.at(-1).inner.at(-1),
   );
   if (dist < 15 * relativeScale) {
+    console.log("Finished");
     return true;
   }
   return false;

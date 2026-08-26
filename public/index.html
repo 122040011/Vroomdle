@@ -7,43 +7,152 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="container">
+    <div class="page-container">
+      <!-- Header -->
       <div class="header">
         <h1 class="title">VROOMDLE</h1>
         <p class="subtitle">Race to the finish line</p>
       </div>
 
-      <div class="game-container">
-        <canvas id="gameCanvas" width="800" height="600"></canvas>
+      <!-- Main Game Area -->
+      <div class="main-game-area">
+        <!-- Left Side: Restart Button -->
+        <div class="left-controls">
+          <button
+            id="sideRestartButton"
+            class="side-restart-btn"
+            title="Restart Race"
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M21 2v6h-6M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6M21 12a9 9 0 0 1-15 6.7L3 16"
+              />
+            </svg>
+          </button>
+        </div>
 
-        <div id="menuOverlay" class="overlay">
-          <div class="overlay-content">
-            <h2 class="overlay-title">How to Play</h2>
-            <div class="controls">
-              <p><strong>W</strong> - Accelerate</p>
-              <p><strong>S</strong> - Brake / Reverse</p>
-              <p><strong>A</strong> - Turn Left</p>
-              <p><strong>D</strong> - Turn Right</p>
+        <!-- Center: Game Canvas -->
+        <div class="center-game">
+          <div class="game-container">
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+            <div id="menuOverlay" class="overlay">
+              <div class="overlay-content">
+                <h2 class="overlay-title">How to Play</h2>
+                <div class="controls">
+                  <p><strong>W</strong> - Accelerate</p>
+                  <p><strong>S</strong> - Brake / Reverse</p>
+                  <p><strong>A</strong> - Turn Left</p>
+                  <p><strong>D</strong> - Turn Right</p>
+                </div>
+                <p id="bestTimeDisplay" class="best-time"></p>
+                <button id="startButton" class="btn">Start Race</button>
+              </div>
             </div>
-            <p id="bestTimeDisplay" class="best-time"></p>
-            <button id="startButton" class="btn">Start Race</button>
+
+            <div id="winOverlay" class="overlay hidden">
+              <div class="overlay-content">
+                <h2 class="win-title">Finish!</h2>
+                <p id="finalTime" class="final-time"></p>
+                <p id="newBestTime" class="new-best hidden">
+                  New Best Time! 🏆
+                </p>
+                <button id="restartButton" class="btn">Race Again</button>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div id="winOverlay" class="overlay hidden">
-          <div class="overlay-content">
-            <h2 class="win-title">Finish!</h2>
-            <p id="finalTime" class="final-time"></p>
-            <p id="newBestTime" class="new-best hidden">New Best Time! 🏆</p>
-            <button id="restartButton" class="btn">Race Again</button>
+        <!-- Right Side: Leaderboard -->
+        <div class="right-leaderboard">
+          <div id="leaderboardPanel" class="leaderboard-panel">
+            <div class="leaderboard-content">
+              <h3 class="leaderboard-title">Top 10</h3>
+              <div id="leaderboardList" class="leaderboard-list">
+                <div class="leaderboard-item">
+                  <span class="rank">1</span>
+                  <span class="player-name">Player1</span>
+                  <span class="player-time">12.45s</span>
+                </div>
+                <div class="leaderboard-item">
+                  <span class="rank">2</span>
+                  <span class="player-name">Player2</span>
+                  <span class="player-time">13.20s</span>
+                </div>
+                <div class="leaderboard-item">
+                  <span class="rank">3</span>
+                  <span class="player-name">Player3</span>
+                  <span class="player-time">14.05s</span>
+                </div>
+                <div class="leaderboard-item">
+                  <span class="rank">4</span>
+                  <span class="player-name">Player4</span>
+                  <span class="player-time">14.78s</span>
+                </div>
+                <div class="leaderboard-item">
+                  <span class="rank">5</span>
+                  <span class="player-name">Player5</span>
+                  <span class="player-time">15.32s</span>
+                </div>
+                <div class="leaderboard-item">
+                  <span class="rank">6</span>
+                  <span class="player-name">Player6</span>
+                  <span class="player-time">16.01s</span>
+                </div>
+                <div class="leaderboard-item">
+                  <span class="rank">7</span>
+                  <span class="player-name">Player7</span>
+                  <span class="player-time">16.54s</span>
+                </div>
+                <div class="leaderboard-item">
+                  <span class="rank">8</span>
+                  <span class="player-name">Player8</span>
+                  <span class="player-time">17.12s</span>
+                </div>
+                <div class="leaderboard-item">
+                  <span class="rank">9</span>
+                  <span class="player-name">Player9</span>
+                  <span class="player-time">17.89s</span>
+                </div>
+                <div class="leaderboard-item">
+                  <span class="rank">10</span>
+                  <span class="player-name">Player10</span>
+                  <span class="player-time">18.45s</span>
+                </div>
+              </div>
+            </div>
+            <button
+              id="leaderboardToggle"
+              class="leaderboard-toggle"
+              title="Toggle Leaderboard"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+              >
+                <path d="M4 8l4-4 4 4" />
+              </svg>
+            </button>
           </div>
         </div>
       </div>
 
-      <div id="timerDisplay" class="timer-container hidden">
+      <!-- Bottom Controls -->
+      <div class="bottom-controls">
+        <button id="dailyButton" class="btn">Daily Track</button>
         <div class="timer-box">
           <span id="currentTime" class="timer">0.00s</span>
         </div>
+        <button id="freeplayButton" class="btn">Free Play</button>
       </div>
     </div>
 
