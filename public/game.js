@@ -24,6 +24,8 @@ const car = {
   friction: 0.001,
   turnSpeed: 0.02,
   currentSegmentIndex: 0, // Track which segment the car is on
+  prevX: 100,
+  prevY: 300,
 };
 
 // Keys pressed
@@ -78,7 +80,7 @@ function getDailySeed() {
   const year = now.getFullYear();
   const month = now.getMonth() + 1;
   const day = now.getDate();
-  return year * 10000 + month * 100 + day;
+  return year * 10000 + month * 100 + day + now.getSeconds();
 }
 
 // ============================================
@@ -637,9 +639,36 @@ function updateGame() {
   const newX = car.x + Math.cos(car.angle) * car.speed;
   const newY = car.y + Math.sin(car.angle) * car.speed;
 
-  // Check collision with CURRENT segment only
-  const currentSegment = trackSegments[car.currentSegmentIndex];
-  if (!checkSegmentCollision(newX, newY, currentSegment)) {
+  // Check collision with current segment and adjacent segments (±1)
+  const segmentsToCheck = [];
+
+  // Add previous segment if exists
+  if (car.currentSegmentIndex > 0) {
+    segmentsToCheck.push(trackSegments[car.currentSegmentIndex - 1]);
+  }
+
+  // Add current segment
+  segmentsToCheck.push(trackSegments[car.currentSegmentIndex]);
+
+  // Add next segment if exists
+  if (car.currentSegmentIndex < trackSegments.length - 1) {
+    segmentsToCheck.push(trackSegments[car.currentSegmentIndex + 1]);
+  }
+
+  // Check collision with all relevant segments
+  let hasCollision = false;
+  for (const segment of segmentsToCheck) {
+    if (checkSegmentCollision(newX, newY, segment)) {
+      hasCollision = true;
+      break;
+    }
+  }
+
+  if (!hasCollision) {
+    // Store previous position before updating
+    car.prevX = car.x;
+    car.prevY = car.y;
+
     car.x = newX;
     car.y = newY;
 
@@ -693,18 +722,105 @@ function checkSegmentCollision(x, y, segment) {
 }
 
 function updateCurrentSegment() {
-  // Check if car has moved to next segment
+  const currentSegment = trackSegments[car.currentSegmentIndex];
+
+  // Check forward boundary (exit point) - transition to next segment
   if (car.currentSegmentIndex < trackSegments.length - 1) {
     const nextSegment = trackSegments[car.currentSegmentIndex + 1];
-    const distToNextEntry = Math.hypot(
-      car.x - nextSegment.entryPoint.x,
-      car.y - nextSegment.entryPoint.y,
+
+    // Create a line representing the boundary between current and next segment
+    // This boundary is perpendicular to the exit direction at the exit point
+    const exitPoint = currentSegment.exitPoint;
+    const boundaryAngle = exitPoint.angle + Math.PI / 2; // Perpendicular to exit direction
+
+    // Create two points on the boundary line (far left and far right)
+    const boundaryHalfWidth = trackMetadata.trackWidth;
+    const boundary1 = {
+      x: exitPoint.x + Math.cos(boundaryAngle) * boundaryHalfWidth,
+      y: exitPoint.y + Math.sin(boundaryAngle) * boundaryHalfWidth,
+    };
+    const boundary2 = {
+      x: exitPoint.x - Math.cos(boundaryAngle) * boundaryHalfWidth,
+      y: exitPoint.y - Math.sin(boundaryAngle) * boundaryHalfWidth,
+    };
+
+    // Check if car crossed the forward boundary
+    const prevSide = getSideOfLine(car.prevX, car.prevY, boundary1, boundary2);
+    const currentSide = getSideOfLine(car.x, car.y, boundary1, boundary2);
+
+    // Calculate which side is "forward" based on exit angle
+    const forwardPoint = {
+      x: exitPoint.x + Math.cos(exitPoint.angle) * 10,
+      y: exitPoint.y + Math.sin(exitPoint.angle) * 10,
+    };
+    const forwardSide = getSideOfLine(
+      forwardPoint.x,
+      forwardPoint.y,
+      boundary1,
+      boundary2,
     );
 
-    if (distToNextEntry < 50) {
+    // If car crossed from behind to in front of the boundary
+    if (prevSide !== forwardSide && currentSide === forwardSide) {
       car.currentSegmentIndex++;
+      return;
     }
   }
+
+  // Check backward boundary (entry point) - transition to previous segment
+  if (car.currentSegmentIndex > 0) {
+    const prevSegment = trackSegments[car.currentSegmentIndex - 1];
+
+    // The entry boundary is the same as the previous segment's exit boundary
+    const entryPoint = currentSegment.entryPoint;
+    const boundaryAngle = entryPoint.angle + Math.PI / 2;
+
+    const boundaryHalfWidth = trackMetadata.trackWidth;
+    const boundary1 = {
+      x: entryPoint.x + Math.cos(boundaryAngle) * boundaryHalfWidth,
+      y: entryPoint.y + Math.sin(boundaryAngle) * boundaryHalfWidth,
+    };
+    const boundary2 = {
+      x: entryPoint.x - Math.cos(boundaryAngle) * boundaryHalfWidth,
+      y: entryPoint.y - Math.sin(boundaryAngle) * boundaryHalfWidth,
+    };
+
+    // Check if car crossed the backward boundary
+    const prevSide = getSideOfLine(car.prevX, car.prevY, boundary1, boundary2);
+    const currentSide = getSideOfLine(car.x, car.y, boundary1, boundary2);
+
+    // Calculate which side is "backward" (opposite of entry direction)
+    const backwardPoint = {
+      x: entryPoint.x - Math.cos(entryPoint.angle) * 10,
+      y: entryPoint.y - Math.sin(entryPoint.angle) * 10,
+    };
+    const backwardSide = getSideOfLine(
+      backwardPoint.x,
+      backwardPoint.y,
+      boundary1,
+      boundary2,
+    );
+
+    // If car crossed from in front to behind the boundary
+    if (prevSide !== backwardSide && currentSide === backwardSide) {
+      car.currentSegmentIndex--;
+    }
+  }
+}
+
+// Helper function: determine which side of a line a point is on
+// Returns positive, negative, or zero based on cross product
+function getSideOfLine(px, py, lineP1, lineP2) {
+  const cross =
+    (lineP2.x - lineP1.x) * (py - lineP1.y) -
+    (lineP2.y - lineP1.y) * (px - lineP1.x);
+  return Math.sign(cross);
+}
+
+function normalizeAngle(angle) {
+  while (angle > Math.PI) angle -= 2 * Math.PI;
+  while (angle < -Math.PI) angle += 2 * Math.PI;
+  return angle;
 }
 
 function pointToLineDistance(px, py, p1, p2) {
