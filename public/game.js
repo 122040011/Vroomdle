@@ -555,7 +555,11 @@ function drawTrack() {
       }
     }
     ctx.stroke();
-    if (i === car.currentSegmentIndex + 1) drawCar();
+    if (
+      i === car.currentSegmentIndex + 1 ||
+      car.currentSegmentIndex === trackSegments.length - 1
+    )
+      drawCar();
   }
 
   // Draw finish line on last segment
@@ -862,12 +866,16 @@ function isPointOutsideTrack(px, py, p1, p2) {
 
 function checkFinish() {
   if (car.currentSegmentIndex !== trackSegments.length - 1) return false;
-
-  const lastSegment = trackSegments[trackSegments.length - 1];
-  const finishPoint = lastSegment.exitPoint;
-  const distance = Math.hypot(car.x - finishPoint.x, car.y - finishPoint.y);
-
-  return distance < trackMetadata.trackWidth / 2 && car.speed > 0;
+  let dist = pointToLineDistance(
+    car.x,
+    car.y,
+    trackSegments.at(-1).outer.at(-1),
+    trackSegments.at(-1).inner.at(-1),
+  );
+  if (dist < 15 * relativeScale) {
+    return true;
+  }
+  return false;
 }
 
 // ============================================
