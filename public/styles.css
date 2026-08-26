@@ -335,6 +335,11 @@ body {
   border-radius: 4px;
 }
 
+.timer-box:hover {
+  background-color: #538d4e;
+  border-color: #538d4e;
+}
+
 .timer {
   font-size: 24px;
   font-weight: 700;
