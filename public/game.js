@@ -21,9 +21,9 @@ const car = {
   y: 300,
   angle: 0,
   speed: 0,
-  maxSpeed: 3,
-  acceleration: 0.003,
-  friction: 0.001,
+  maxSpeed: 3 * relativeScale,
+  acceleration: 0.003 * relativeScale,
+  friction: 0.001 * relativeScale,
   turnSpeed: 0.02,
   currentSegmentIndex: 0, // Track which segment the car is on
   prevX: 100,
@@ -902,6 +902,7 @@ function checkFinish() {
   );
   if (dist < 15 * relativeScale) {
     console.log(`Finished Map with seed ${seed}`);
+    console.log(`relative scale ${relativeScale}`);
     return true;
   }
   return false;
