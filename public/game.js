@@ -7,7 +7,7 @@ let time = 0;
 let bestTime = null;
 let timerInterval = null;
 let animationFrameId = null;
-let seed = getDailySeed();
+let seed = getRandomSeed();
 let scale = 1;
 let relativeScale = 1;
 
@@ -69,9 +69,22 @@ leaderboardToggle.addEventListener("click", () => {
 });
 
 // Initialize
-loadBestTime();
-updateBestTimeDisplay();
-generateTrackSegments(seed);
+function loadGame() {
+  loadBestTime();
+  updateBestTimeDisplay();
+  generateTrackSegments(seed);
+}
+loadGame();
+
+function loadFreeplay() {
+  seed = getRandomSeed();
+  loadGame();
+}
+
+function loadDaily() {
+  seed = getDailySeed();
+  loadGame();
+}
 
 // ============================================
 // SEEDED RANDOM NUMBER GENERATOR
@@ -85,6 +98,14 @@ function seededRandom(seed) {
 }
 
 function getDailySeed() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1;
+  const day = now.getDate();
+  return year * 10000 + month * 100 + day;
+}
+
+function getRandomSeed() {
   const now = new Date();
   const year = now.getFullYear();
   const month = now.getMonth() + 1;
@@ -880,7 +901,7 @@ function checkFinish() {
     trackSegments.at(-1).inner.at(-1),
   );
   if (dist < 15 * relativeScale) {
-    console.log("Finished");
+    console.log(`Finished Map with seed ${seed}`);
     return true;
   }
   return false;
