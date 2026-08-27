@@ -487,7 +487,7 @@ function startGame() {
   // Start timer
   if (timerInterval) clearInterval(timerInterval);
   timerInterval = setInterval(() => {
-    time += 0.01;
+    if (gameState == "playing") time += 0.01;
     updateTimeDisplay();
   }, 10);
 
