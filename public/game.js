@@ -7,7 +7,8 @@ let time = 0;
 let bestTime = null;
 let timerInterval = null;
 let animationFrameId = null;
-let seed = getRandomSeed();
+let gameMode = 0; //0 for daily, 1 for freeplay
+let seed = getSeed();
 let scale = 1;
 let relativeScale = 1;
 
@@ -50,6 +51,9 @@ const winOverlay = document.getElementById("winOverlay");
 // const timerDisplay = document.getElementById("timerDisplay");
 const startButton = document.getElementById("startButton");
 const restartButton = document.getElementById("restartButton");
+const dailyButton = document.getElementById("dailyButton");
+const freeplayButton = document.getElementById("freeplayButton");
+const timerResetButton = document.getElementById("timerResetButton");
 const currentTimeDisplay = document.getElementById("currentTime");
 const finalTimeDisplay = document.getElementById("finalTime");
 const bestTimeDisplay = document.getElementById("bestTimeDisplay");
@@ -62,6 +66,9 @@ window.addEventListener("keydown", handleKeyDown);
 window.addEventListener("keyup", handleKeyUp);
 startButton.addEventListener("click", startGame);
 restartButton.addEventListener("click", startGame);
+dailyButton.addEventListener("click", loadDaily);
+freeplayButton.addEventListener("click", loadFreeplay);
+timerResetButton.addEventListener("click", startGame);
 
 // Leaderboard toggle
 leaderboardToggle.addEventListener("click", () => {
@@ -70,20 +77,29 @@ leaderboardToggle.addEventListener("click", () => {
 
 // Initialize
 function loadGame() {
+  seed = getSeed();
   loadBestTime();
   updateBestTimeDisplay();
   generateTrackSegments(seed);
+  resetGame();
 }
-loadGame();
 
 function loadFreeplay() {
-  seed = getRandomSeed();
+  gameMode = 1;
   loadGame();
+  resetGame();
+  menuOverlay.classList.remove("hidden");
+  winOverlay.classList.add("hidden");
+  gameState = "menu";
 }
 
 function loadDaily() {
-  seed = getDailySeed();
+  gameMode = 0;
   loadGame();
+  startGame();
+  menuOverlay.classList.remove("hidden");
+  winOverlay.classList.add("hidden");
+  gameState = "menu";
 }
 
 // ============================================
@@ -97,20 +113,14 @@ function seededRandom(seed) {
   };
 }
 
-function getDailySeed() {
+function getSeed() {
   const now = new Date();
   const year = now.getFullYear();
   const month = now.getMonth() + 1;
   const day = now.getDate();
-  return year * 10000 + month * 100 + day;
-}
-
-function getRandomSeed() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth() + 1;
-  const day = now.getDate();
-  return year * 10000 + month * 100 + day + now.getSeconds();
+  return gameMode == 0
+    ? year * 10000 + month * 100 + day
+    : year * 10000 + month * 100 + day + now.getSeconds();
 }
 
 // ============================================
@@ -180,6 +190,10 @@ function generateTrackSegments(seed) {
 
     // Create boundaries
     const { outer, inner } = createSegmentBoundaries(centerline, trackWidth);
+    if (segmentIndex == 0) {
+      outer.unshift(inner[0]);
+      inner.unshift(outer[0]);
+    }
 
     // Apply self-intersection clipping to THIS segment only
     const cleanedOuter = removeSelfIntersections(outer);
@@ -441,19 +455,27 @@ function handleKeyUp(e) {
   }
 }
 
-function startGame() {
-  if (trackSegments.length === 0) return;
-
+function resetGame() {
   // Reset car to start of first segment
   const firstSegment = trackSegments[0];
-  car.x = firstSegment.entryPoint.x;
-  car.y = firstSegment.entryPoint.y;
+  car.x =
+    firstSegment.entryPoint.x +
+    15 * relativeScale * Math.cos(firstSegment.entryPoint.angle) * 3;
+  car.y =
+    firstSegment.entryPoint.y +
+    15 * relativeScale * Math.sin(firstSegment.entryPoint.angle) * 3;
   car.angle = firstSegment.entryPoint.angle;
   car.speed = 0;
   car.currentSegmentIndex = 0;
 
   // Reset time
   time = 0;
+}
+
+function startGame() {
+  if (trackSegments.length === 0) return;
+
+  resetGame();
   updateTimeDisplay();
 
   // Update UI
@@ -482,8 +504,6 @@ function endGame() {
     clearInterval(timerInterval);
     timerInterval = null;
   }
-
-  // timerDisplay.classList.add("hidden");
 
   const isNewBest = !bestTime || time < bestTime;
   if (isNewBest) {
@@ -597,13 +617,13 @@ function drawTrack() {
 
     ctx.save();
     ctx.translate(finishPoint.x, finishPoint.y);
-    ctx.rotate(finishPoint.angle);
+    ctx.rotate(finishPoint.angle + Math.PI / 2);
 
-    const checkSize = trackMetadata.trackWidth / 6;
+    const checkSize = (trackMetadata.trackWidth / 6) * scale;
     for (let i = 0; i < 6; i++) {
       ctx.fillStyle = i % 2 === 0 ? "#538d4e" : "#ffffff";
       ctx.fillRect(
-        -trackMetadata.trackWidth / 2 + i * checkSize,
+        (-trackMetadata.trackWidth / 2) * scale + i * checkSize,
         -4,
         checkSize,
         8,
@@ -638,15 +658,6 @@ function drawCar() {
   );
 
   ctx.restore();
-
-  // Debug: Show current segment
-  ctx.fillStyle = "#121213";
-  ctx.font = "14px Arial";
-  ctx.fillText(
-    `Segment ${car.currentSegmentIndex + 1}/${trackSegments.length}`,
-    10,
-    20,
-  );
 }
 
 // ============================================
@@ -925,4 +936,5 @@ function gameLoop() {
 // ============================================
 
 // Start the game loop
+loadGame();
 gameLoop();
