@@ -532,7 +532,6 @@ function endGame() {
   if (gameMode == "daily")
     reqToBackend.updateTimeReq(
       uid,
-      username,
       new Date().toISOString(),
       helper.formatToPostgresTime3(time.toFixed(3)),
       channelID,
@@ -578,12 +577,27 @@ function loadBestTime() {
 }
 
 async function updateLeaderboard() {
-  let leaderboard = null;
+  let leaderboard = [];
   if (gameMode == "daily") {
-    leaderboard = await reqToBackend.getLeaderboard();
+    const response = await reqToBackend.getLeaderboard(
+      new Date().toISOString(),
+      channelID,
+    );
+    leaderboard = response.data;
   }
-
   console.log(leaderboard);
+  for (let i = 0; i < 10; i++) {
+    const playerText = document.getElementById(`player${i + 1}`);
+    const timeText = document.getElementById(`time${i + 1}`);
+
+    if (i < leaderboard.length) {
+      playerText.textContent = leaderboard[i].username;
+      timeText.textContent = leaderboard[i].recordTime;
+    } else {
+      playerText.textContent = null;
+      timeText.textContent = null;
+    }
+  }
 }
 
 // ============================================
