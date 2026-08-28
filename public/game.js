@@ -1,3 +1,9 @@
+//Auth and login
+
+const isDiscord =
+  window.location.hostname.includes("discordsays.com") ||
+  window.self !== window.top;
+
 // Game State
 let gameState = "menu"; // menu, playing, won
 let uid = null;
