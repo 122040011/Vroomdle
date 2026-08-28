@@ -9,7 +9,7 @@ async function sendIncrementTrial(uid, username, date, channelID) {
   try {
     const result = await sql`
       INSERT INTO "VroomdleScores" (uid, username, date, tries, "channelID")
-      VALUES (${uid}, ${username}, ${date}, 1, ${channelID})
+      VALUES (COALESCE(${uid}, 'Guest_' || nextval('guest_username_seq')::text), COALESCE(${username}, 'Guest'), ${date}, 1, ${channelID})
       ON CONFLICT (uid, date)
       DO UPDATE SET 
         tries = "VroomdleScores".tries + 1,

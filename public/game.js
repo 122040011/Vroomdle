@@ -1,3 +1,6 @@
+import * as reqToBackend from "./reqToBackend.js";
+import * as helper from "./helper.js";
+
 //Auth and login
 
 const isDiscord =
@@ -8,15 +11,15 @@ const isDiscord =
 let gameState = "menu"; // menu, playing, won
 let uid = null;
 let username = null;
-const serverUrl = null;
 let time = 0;
 let bestTime = null;
 let timerInterval = null;
 let animationFrameId = null;
-let gameMode = 0; //0 for daily, 1 for freeplay
+let gameMode = "daily"; //0 for daily, 1 for freeplay
 let seed = getSeed();
 let scale = 1;
 let relativeScale = 1;
+let channelID = null;
 
 // Canvas setup
 const canvas = document.getElementById("gameCanvas");
@@ -84,6 +87,7 @@ leaderboardToggle.addEventListener("click", () => {
 // Initialize
 function loadGame() {
   seed = getSeed();
+  updateLeaderboard();
   loadBestTime();
   updateBestTimeDisplay();
   generateTrackSegments(seed);
@@ -91,7 +95,7 @@ function loadGame() {
 }
 
 function loadFreeplay() {
-  gameMode = 1;
+  gameMode = "freeplay";
   loadGame();
   resetGame();
   menuOverlay.classList.remove("hidden");
@@ -100,7 +104,7 @@ function loadFreeplay() {
 }
 
 function loadDaily() {
-  gameMode = 0;
+  gameMode = "daily";
   loadGame();
   startGame();
   menuOverlay.classList.remove("hidden");
@@ -124,7 +128,7 @@ function getSeed() {
   const year = now.getFullYear();
   const month = now.getMonth() + 1;
   const day = now.getDate();
-  return gameMode == 0
+  return gameMode == "daily"
     ? year * 10000 + month * 100 + day
     : year * 10000 + month * 100 + day + now.getSeconds();
 }
@@ -477,10 +481,24 @@ function resetGame() {
   // Reset time
   time = 0;
 }
+async function handleUidUpdate() {
+  const response = await reqToBackend.incrementTrialReq(
+    uid,
+    username,
+    new Date().toISOString(),
+    channelID,
+  );
 
+  if (response.success && response.data?.uid) {
+    uid = response.data.uid;
+  }
+  console.log(`uid=${uid}`);
+  return response;
+}
 function startGame() {
   if (trackSegments.length === 0) return;
 
+  handleUidUpdate();
   resetGame();
   updateTimeDisplay();
 
@@ -510,7 +528,15 @@ function endGame() {
     clearInterval(timerInterval);
     timerInterval = null;
   }
-
+  //submit score to DB
+  if (gameMode == "daily")
+    reqToBackend.updateTimeReq(
+      uid,
+      username,
+      new Date().toISOString(),
+      helper.formatToPostgresTime3(time.toFixed(3)),
+      channelID,
+    );
   const isNewBest = !bestTime || time < bestTime;
   if (isNewBest) {
     bestTime = time;
@@ -549,6 +575,15 @@ function loadBestTime() {
   if (saved) {
     bestTime = parseFloat(saved);
   }
+}
+
+async function updateLeaderboard() {
+  let leaderboard = null;
+  if (gameMode == "daily") {
+    leaderboard = await reqToBackend.getLeaderboard();
+  }
+
+  console.log(leaderboard);
 }
 
 // ============================================
