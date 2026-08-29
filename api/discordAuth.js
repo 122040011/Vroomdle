@@ -1,6 +1,9 @@
-async function discordBackendAuth(code) {
-  try {
-    const response = await fetch("https://discord.com/api/oauth2/token", {
+// Function that exchanges code AND fetches user profile
+async function getDiscordUserData(code, redirectUri) {
+  // 1. Exchange authorization code for an access token
+  const tokenResponse = await fetch(
+    "https://discord.com/api/v10/oauth2/token",
+    {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -10,43 +13,56 @@ async function discordBackendAuth(code) {
         client_secret: process.env.DISCORD_CLIENT_SECRET,
         grant_type: "authorization_code",
         code: code,
+        redirect_uri: process.env.DISCORD_REDIRECT_URI,
       }),
-    });
+    },
+  );
 
-    const data = await response.json();
-    return { access_token: data.access_token };
-  } catch (error) {
-    res.status(500).json({ error: "Failed to exchange token" });
+  const tokenData = await tokenResponse.json();
+
+  if (!tokenResponse.ok) {
+    throw new Error(tokenData.error_description || "Failed to exchange token");
   }
+
+  // 2. Fetch User Profile using the access_token
+  const userResponse = await fetch("https://discord.com/api/v10/users/@me", {
+    headers: {
+      Authorization: `Bearer ${tokenData.access_token}`,
+    },
+  });
+
+  const userData = await userResponse.json();
+
+  if (!userResponse.ok) {
+    throw new Error("Failed to fetch user profile");
+  }
+
+  // Returns exact profile data needed for your database
+  return {
+    id: userData.id, // Unique Discord ID -> use as 'uid' in PostgreSQL
+    username: userData.username, // Discord username -> use as 'username' in PostgreSQL
+    avatar: userData.avatar, // Avatar hash (optional)
+  };
 }
 
-// Export functions for use in API routes
-export { discordBackendAuth };
-
-// Example API route handler for Vercel
-export default async function handler(req, res) {
-  // CORS headers
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
+// Example handler for your serverless/API endpoint
+export async function handler(req, res) {
+  const { code } = req.body;
+  const redirectUri = process.env.DISCORD_REDIRECT_URI;
 
   try {
-    const { code } = req.body;
+    const user = await getDiscordUserData(code, redirectUri);
 
-    let result;
-
-    result = await discordBackendAuth(code);
-
-    return res.status(200).json(result);
-  } catch (error) {
-    console.error("API error:", error);
-    return res.status(500).json({
-      success: false,
-      error: error.message,
+    // Success! Return user info to your front-end
+    return res.status(200).json({
+      success: true,
+      user: {
+        id: user.id,
+        username: user.username,
+      },
     });
+  } catch (error) {
+    console.error("OAuth Error:", error.message);
+    return res.status(500).json({ success: false, error: error.message });
   }
 }

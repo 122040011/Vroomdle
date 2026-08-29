@@ -1,12 +1,6 @@
 import * as reqToBackend from "./reqToBackend.js";
 import * as helper from "./helper.js";
 
-//Auth and login
-
-const isDiscord =
-  window.location.hostname.includes("discordsays.com") ||
-  window.self !== window.top;
-
 // Game State
 let gameState = "menu"; // menu, playing, won
 let uid = null;
@@ -15,11 +9,38 @@ let time = 0;
 let bestTime = null;
 let timerInterval = null;
 let animationFrameId = null;
-let gameMode = "daily"; //0 for daily, 1 for freeplay
+let gameMode = "daily";
 let seed = getSeed();
 let scale = 1;
 let relativeScale = 1;
 let channelID = null;
+
+//Auth and login
+
+const isDiscord =
+  window.location.hostname.includes("discordsays.com") ||
+  window.self !== window.top;
+
+if (isDiscord) {
+  const urlParams = new URLSearchParams(window.location.search);
+  const code = urlParams.get("code");
+
+  if (code) {
+    const response = await fetch("/api/discordAuth", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code }),
+    });
+    const data = await response.json();
+
+    if (data.success) {
+      uid = data.user.id;
+      username = data.user.username;
+      console.log(`uid: ${uid}`);
+      console.log(`username: ${username}`);
+    }
+  }
+}
 
 // Canvas setup
 const canvas = document.getElementById("gameCanvas");
