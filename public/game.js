@@ -535,6 +535,7 @@ function endGame() {
       new Date().toISOString(),
       helper.formatToPostgresTime3(time.toFixed(3)),
       channelID,
+      username ?? "Guest",
     );
   const isNewBest = !bestTime || time < bestTime;
   if (isNewBest) {

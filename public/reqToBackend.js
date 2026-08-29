@@ -14,7 +14,13 @@ export async function incrementTrialReq(uid, username, date, channelID) {
   return await response.json();
 }
 
-export async function updateTimeReq(uid, date, recordTime, channelID) {
+export async function updateTimeReq(
+  uid,
+  date,
+  recordTime,
+  channelID,
+  username,
+) {
   const response = await fetch(`/api/requestToDb`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -24,6 +30,7 @@ export async function updateTimeReq(uid, date, recordTime, channelID) {
       date: date,
       recordTime: recordTime,
       channelID: channelID,
+      username: username,
     }),
   });
   return await response.json();

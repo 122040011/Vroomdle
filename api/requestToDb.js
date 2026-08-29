@@ -31,15 +31,17 @@ async function sendIncrementTrial(uid, username, date, channelID) {
 }
 
 //Update user's time for a specific date
-async function updateTime(uid, date, recordTime, channelID) {
+async function updateTime(uid, date, recordTime, channelID, username = null) {
+  console.log(`updating time: ${recordTime}`);
   try {
     const result = await sql`
-      INSERT INTO "VroomdleScores" (uid, date, "recordTime", "channelID")
-      VALUES (${uid}, ${date}, ${recordTime}, ${channelID})
+      INSERT INTO "VroomdleScores" (uid, date, "recordTime", "channelID", username)
+      VALUES (${uid}, ${date}, ${recordTime}, ${channelID}, ${username})
       ON CONFLICT (uid, date)
       DO UPDATE SET
         "recordTime" = LEAST("VroomdleScores"."recordTime", ${recordTime}),
-        "channelID" = ${channelID}
+        "channelID" = ${channelID},
+        "username" = ${username}
       RETURNING *
     `;
 
@@ -133,7 +135,7 @@ export default async function handler(req, res) {
         break;
 
       case "updateTime":
-        result = await updateTime(uid, date, recordTime, channelID);
+        result = await updateTime(uid, date, recordTime, channelID, username);
         break;
 
       case "getLeaderboard":
