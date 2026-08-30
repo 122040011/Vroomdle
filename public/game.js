@@ -1,5 +1,6 @@
 import * as reqToBackend from "./reqToBackend.js";
 import * as helper from "./helper.js";
+import * as discordAuth from "./discordAuth.js";
 
 // Game State
 let gameState = "menu"; // menu, playing, won
@@ -22,24 +23,9 @@ const isDiscord =
   window.self !== window.top;
 
 if (isDiscord) {
-  const urlParams = new URLSearchParams(window.location.search);
-  const code = urlParams.get("code");
-
-  if (code) {
-    const response = await fetch("/api/discordAuth", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code }),
-    });
-    const data = await response.json();
-
-    if (data.success) {
-      uid = data.user.id;
-      username = data.user.username;
-      console.log(`uid: ${uid}`);
-      console.log(`username: ${username}`);
-    }
-  }
+  const userData = discordAuth.getUserData();
+  console.log("DAAATTTAAA");
+  console.log(userData);
 }
 
 // Canvas setup

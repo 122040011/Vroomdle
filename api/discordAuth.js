@@ -1,5 +1,5 @@
 // Function that exchanges code AND fetches user profile
-async function getDiscordUserData(code, redirectUri) {
+async function getDiscordUserData(code) {
   // 1. Exchange authorization code for an access token
   const tokenResponse = await fetch(
     "https://discord.com/api/v10/oauth2/token",
@@ -13,7 +13,6 @@ async function getDiscordUserData(code, redirectUri) {
         client_secret: process.env.DISCORD_CLIENT_SECRET,
         grant_type: "authorization_code",
         code: code,
-        redirect_uri: process.env.DISCORD_REDIRECT_URI,
       }),
     },
   );
@@ -38,28 +37,20 @@ async function getDiscordUserData(code, redirectUri) {
   }
 
   // Returns exact profile data needed for your database
-  return {
-    id: userData.id, // Unique Discord ID -> use as 'uid' in PostgreSQL
-    username: userData.username, // Discord username -> use as 'username' in PostgreSQL
-    avatar: userData.avatar, // Avatar hash (optional)
-  };
+  return userData;
 }
 
 // Example handler for your serverless/API endpoint
 export async function handler(req, res) {
   const { code } = req.body;
-  const redirectUri = process.env.DISCORD_REDIRECT_URI;
 
   try {
-    const user = await getDiscordUserData(code, redirectUri);
+    const userData = await getDiscordUserData(code);
 
     // Success! Return user info to your front-end
     return res.status(200).json({
       success: true,
-      user: {
-        id: user.id,
-        username: user.username,
-      },
+      userData: userData,
     });
   } catch (error) {
     console.error("OAuth Error:", error.message);
