@@ -5,6 +5,7 @@ const DISCORD_CLIENT_ID = "1542778193214439424";
 
 async function getUserData() {
   // Check if running inside Discord iframe
+  console.log("discord auth running");
   const discordSdk = new DiscordSDK(DISCORD_CLIENT_ID);
   const isEmbedded = window.self !== window.top;
 
@@ -32,6 +33,7 @@ async function getUserData() {
       const data = await response.json();
 
       if (data.success) {
+        console.log("returning discord data");
         return data;
       }
     } catch (err) {
