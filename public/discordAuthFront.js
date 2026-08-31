@@ -1,5 +1,4 @@
 const DISCORD_CLIENT_ID = "1542778193214439424";
-let isDiscord = true;
 
 // Initialize SDK with your Client ID
 

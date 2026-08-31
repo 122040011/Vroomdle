@@ -1,6 +1,6 @@
 import * as reqToBackend from "./reqToBackend.js";
 import * as helper from "./helper.js";
-import * as discordAuth from "./discordAuthFront.js";
+import * as discordAuthFront from "./discordAuthFront.js";
 
 // Game State
 let gameState = "menu"; // menu, playing, won
@@ -17,13 +17,12 @@ let relativeScale = 1;
 let channelID = null;
 
 //Auth and login
-
 const isDiscord =
   window.location.hostname.includes("discordsays.com") ||
   window.self !== window.top;
 
 if (isDiscord) {
-  const userData = discordAuth.getUserData();
+  const userData = discordAuthFront.getUserData();
   console.log("DAAATTTAAA");
   console.log(userData);
 }
