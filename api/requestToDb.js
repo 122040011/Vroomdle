@@ -13,7 +13,7 @@ async function sendIncrementTrial(uid, username, date, channelID) {
       ON CONFLICT (uid, date)
       DO UPDATE SET 
         tries = "VroomdleScores".tries + 1,
-        username = ${username}
+        username = COALESCE(${username}, 'Guest')
       RETURNING *
     `;
 
@@ -36,12 +36,12 @@ async function updateTime(uid, date, recordTime, channelID, username = null) {
   try {
     const result = await sql`
       INSERT INTO "VroomdleScores" (uid, date, "recordTime", "channelID", username)
-      VALUES (${uid}, ${date}, ${recordTime}, ${channelID}, ${username})
+      VALUES (${uid}, ${date}, ${recordTime}, ${channelID}, COALESCE(${username}, 'Guest'))
       ON CONFLICT (uid, date)
       DO UPDATE SET
         "recordTime" = LEAST("VroomdleScores"."recordTime", ${recordTime}),
         "channelID" = ${channelID},
-        "username" = ${username}
+        "username" = COALESCE(${username}, 'Guest')
       RETURNING *
     `;
 
