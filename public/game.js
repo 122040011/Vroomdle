@@ -27,6 +27,7 @@ if (isDiscord) {
   console.log("DAAATTTAAA");
   console.log(`userdata = ${userData}`);
   console.log(`userDetail = ${userDetail}`);
+  console.log(userDetail);
 }
 
 // Canvas setup
