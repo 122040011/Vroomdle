@@ -24,7 +24,9 @@ body {
   align-items: center;
   gap: 24px;
   max-width: 1200px;
-  width: 100%;
+
+  width: min(100vw - 32px, (100vh - 32px) * (4 / 3));
+  height: min(100vh - 32px, (100vw - 32px) * (3 / 4));
 }
 
 /* Header Styles */
@@ -96,9 +98,7 @@ body {
 }
 
 .leaderboard-panel.open {
-  transform: translateX(
-    calc(100% - 280px)
-  ); /* 280px panel + 32px toggle width */
+  transform: translateX(calc(100% - 280px));
 }
 
 .leaderboard-toggle {
