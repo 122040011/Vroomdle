@@ -14,6 +14,9 @@ export async function getUserData() {
       // 1. Wait for SDK initialization
       await discordSdk.ready();
 
+      const channelID = discordSdk.channelID;
+      const guildID = discordSdk.guildID;
+
       // 2. Request code directly from Discord Client (no URL parameter needed!)
       const { code } = await discordSdk.commands.authorize({
         client_id: DISCORD_CLIENT_ID,
@@ -33,7 +36,7 @@ export async function getUserData() {
       const data = await response.json();
 
       if (data.success) {
-        return data;
+        return { userdata: data, channelID: channelID, guildID: guildID };
       }
     } catch (err) {
       console.error("Discord Embedded Auth Error:", err);

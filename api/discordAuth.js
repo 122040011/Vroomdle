@@ -56,4 +56,4 @@ module.exports = async function handler(req, res) {
     console.error("OAuth Error:", error.message);
     return res.status(500).json({ success: false, error: error.message });
   }
-}
+};
