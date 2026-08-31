@@ -3,7 +3,7 @@ const DISCORD_CLIENT_ID = "1542778193214439424";
 
 // Initialize SDK with your Client ID
 
-async function getUserData() {
+export async function getUserData() {
   // Check if running inside Discord iframe
   const discordSdk = new DiscordSDK(DISCORD_CLIENT_ID);
   const isEmbedded = window.self !== window.top;
