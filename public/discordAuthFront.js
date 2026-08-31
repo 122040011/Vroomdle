@@ -6,7 +6,7 @@ let isDiscord = true;
 export async function getUserData() {
   // Check if running inside Discord iframe
   const sdkPath = isDiscord
-    ? "/.proxy/jsdelivr/npm/@discord/embedded-app-sdk@1.2.0/+esm"
+    ? "/.proxy/cdn.jsdelivr.net/npm/@discord/embedded-app-sdk@1.2.0/+esm"
     : "https://cdn.jsdelivr.net/npm/@discord/embedded-app-sdk@1.2.0/+esm";
   const isEmbedded = window.self !== window.top;
 
