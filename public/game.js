@@ -135,9 +135,7 @@ function getSeed() {
   const year = now.getFullYear();
   const month = now.getMonth() + 1;
   const day = now.getDate();
-  return gameMode == "daily"
-    ? year * 10000 + month * 100 + day
-    : year * 10000 + month * 100 + day + now.getSeconds();
+  return gameMode == "daily" ? year * 10000 + month * 100 + day : Date.now();
 }
 
 // ============================================
