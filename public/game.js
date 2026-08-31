@@ -19,7 +19,9 @@ let channelID = null;
 //Auth and login
 const isDiscord =
   window.location.hostname.includes("discordsays.com") ||
-  window.self !== window.top;
+  window.self !== window.top ||
+  urlParams.has("frame_id") ||
+  urlParams.has("instance_id");
 
 if (isDiscord) {
   const userData = discordAuthFront.getUserData();
