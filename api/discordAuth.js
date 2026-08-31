@@ -40,8 +40,8 @@ async function getDiscordUserData(code) {
   return userData;
 }
 
-// Example handler for your serverless/API endpoint
-export async function handler(req, res) {
+// Vercel serverless function handler (CommonJS)
+module.exports = async function handler(req, res) {
   const { code } = req.body;
 
   try {
