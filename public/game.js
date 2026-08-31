@@ -23,7 +23,7 @@ const isDiscord =
 
 if (isDiscord) {
   const userData = discordAuthFront.getUserData();
-  const userDetail = await userData.json();
+  const userDetail = await userData;
   console.log("DAAATTTAAA");
   console.log(`userdata = ${userData}`);
   console.log(`userDetail = ${userDetail}`);
