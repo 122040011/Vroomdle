@@ -1,15 +1,19 @@
-import { DiscordSDK } from "@discord/embedded-app-sdk";
 const DISCORD_CLIENT_ID = "1542778193214439424";
-
+let isDiscord = true;
+const sdkPath = isDiscord
+  ? "/.proxy/jsdelivr/npm/@discord/embedded-app-sdk@1.2.0/+esm"
+  : "https://cdn.jsdelivr.net/npm/@discord/embedded-app-sdk@1.2.0/+esm";
 // Initialize SDK with your Client ID
 
 export async function getUserData() {
   // Check if running inside Discord iframe
-  const discordSdk = new DiscordSDK(DISCORD_CLIENT_ID);
   const isEmbedded = window.self !== window.top;
 
   if (isEmbedded) {
     try {
+      const { DiscordSDK } = await import(sdkPath);
+      const discordSdk = new DiscordSDK(DISCORD_CLIENT_ID);
+
       // 1. Wait for SDK initialization
       await discordSdk.ready();
 

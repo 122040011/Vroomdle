@@ -1,4 +1,3 @@
-import { DiscordSDK } from "@discord/embedded-app-sdk";
 import * as reqToBackend from "./reqToBackend.js";
 import * as helper from "./helper.js";
 import * as discordAuth from "./discordAuth.js";
