@@ -1,4 +1,5 @@
 import { neon } from "@neondatabase/serverless";
+import { defineEventHandler, readBody } from "h3";
 
 // Initialize Neon SQL client
 // Connection string from Vercel environment variable
@@ -109,49 +110,74 @@ async function getLeaderboard(date, channelID = null) {
 // Export functions for use in API routes
 export { sendIncrementTrial, updateTime, getLeaderboard };
 
-// Example API route handler for Vercel
+// Helper function to consume a raw Node.js IncomingMessage stream
+function getRawBody(req) {
+  return new Promise((resolve, reject) => {
+    let body = "";
+    req.on("data", (chunk) => {
+      body += chunk;
+    });
+    req.on("end", () => {
+      try {
+        resolve(body ? JSON.parse(body) : {});
+      } catch (err) {
+        reject(err);
+      }
+    });
+    req.on("error", (err) => reject(err));
+  });
+}
+
 export default async function handler(req, res) {
-  // CORS headers
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
-
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
-
   try {
-    const { action, uid, username, date, recordTime, channelID } = req.body;
+    // 1. If req is Node stream, consume body; otherwise handle as pre-parsed object
+    let body = {};
+    if (req.body) {
+      body = req.body;
+    } else if (typeof req.on === "function") {
+      body = await getRawBody(req);
+    } else if (typeof req.json === "function") {
+      body = await req.json();
+    }
+
+    const { action, uid, username, date, recordTime, channelID } = body;
 
     let result;
-
     switch (action) {
       case "incrementTrial":
         result = await sendIncrementTrial(uid, username, date, channelID);
         break;
-
       case "updateTime":
         result = await updateTime(uid, date, recordTime, channelID, username);
         break;
-
       case "getLeaderboard":
         result = await getLeaderboard(date, channelID);
         break;
-
       default:
-        return res.status(400).json({ error: "Invalid action" });
+        result = { success: false, error: "Invalid action" };
     }
 
-    return res.status(200).json(result);
-  } catch (error) {
-    console.error("API error:", error);
-    return res.status(500).json({
-      success: false,
-      error: error.message,
+    // 2. Respond via Express/Vercel res object if present
+    if (res && typeof res.status === "function") {
+      return res.status(200).json(result);
+    }
+
+    // 3. Otherwise return standard Response
+    return new Response(JSON.stringify(result), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
     });
+  } catch (error) {
+    console.error("Handler error:", error);
+    if (res && typeof res.status === "function") {
+      return res.status(500).json({ success: false, error: error.message });
+    }
+    return new Response(
+      JSON.stringify({ success: false, error: error.message }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   }
 }
