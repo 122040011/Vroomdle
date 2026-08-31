@@ -1,3 +1,0 @@
-const CONFIG = {
-  applicationURL: "abc",
-};
