@@ -16,6 +16,7 @@ let scale = 1;
 let relativeScale = 1;
 let channelID = null;
 
+const urlParams = new URLSearchParams(window.location.search);
 //Auth and login
 const isDiscord =
   window.location.hostname.includes("discordsays.com") ||
