@@ -14,8 +14,8 @@ export async function getUserData() {
       // 1. Wait for SDK initialization
       await discordSdk.ready();
 
-      const channelID = discordSdk.channelID;
-      const guildID = discordSdk.guildID;
+      const channelID = discordSdk.channelId;
+      const guildID = discordSdk.guildId;
 
       // 2. Request code directly from Discord Client (no URL parameter needed!)
       const { code } = await discordSdk.commands.authorize({
