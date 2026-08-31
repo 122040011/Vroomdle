@@ -24,7 +24,7 @@ const isDiscord =
 if (isDiscord) {
   const userData = discordAuthFront.getUserData();
   console.log("DAAATTTAAA");
-  console.log(userData);
+  console.log(`userdata = ${userData}`);
 }
 
 // Canvas setup
