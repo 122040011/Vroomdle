@@ -1,6 +1,6 @@
 import * as reqToBackend from "./reqToBackend.js";
 import * as helper from "./helper.js";
-import * as discordAuth from "./discordAuth.js";
+import * as discordAuth from "./discordAuthFront.js";
 
 // Game State
 let gameState = "menu"; // menu, playing, won
