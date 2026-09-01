@@ -12,3 +12,9 @@ export function formatToPostgresTime3(totalSeconds) {
 
   return `${hh}:${mm}:${ss}.${mmm}`;
 }
+
+export function formatTimeDisplay(timeString) {
+  const [hh, mm, ss, mmm] = timeString.split(/[:.]/);
+  const padmmm = mmm.padEnd(2, "0");
+  return `${mm}:${ss}.${padmmm}`;
+}

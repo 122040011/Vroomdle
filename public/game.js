@@ -610,7 +610,9 @@ async function updateLeaderboard() {
 
     if (i < leaderboard.length) {
       playerText.textContent = leaderboard[i].username;
-      timeText.textContent = leaderboard[i].recordTime;
+      timeText.textContent = helper.formatTimeDisplay(
+        leaderboard[i].recordTime,
+      );
     } else {
       playerText.textContent = null;
       timeText.textContent = null;
