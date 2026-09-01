@@ -47,7 +47,7 @@ const car = {
   y: 300,
   angle: 0,
   speed: 0,
-  maxSpeed: 250 * relativeScale,
+  maxSpeed: 300 * relativeScale,
   acceleration: 60 * relativeScale,
   friction: 60 * relativeScale,
   turnSpeed: 2.45,
