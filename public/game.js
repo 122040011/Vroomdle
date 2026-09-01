@@ -147,9 +147,9 @@ function seededRandom(seed) {
 
 function getSeed() {
   const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth() + 1;
-  const day = now.getDate();
+  const year = now.getUTCFullYear();
+  const month = now.getUTCMonth() + 1;
+  const day = now.getUTCDate();
   return gameMode == "daily" ? year * 10000 + month * 100 + day : Date.now();
 }
 
@@ -467,7 +467,7 @@ function getLineIntersection(x1, y1, x2, y2, x3, y3, x4, y4) {
 // ============================================
 function getDailySeedString() {
   const date = new Date();
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
 }
 
 function handleKeyDown(e) {
