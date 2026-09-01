@@ -94,6 +94,7 @@ restartButton.addEventListener("click", startGame);
 dailyButton.addEventListener("click", loadDaily);
 freeplayButton.addEventListener("click", loadFreeplay);
 timerResetButton.addEventListener("click", startGame);
+
 usernameField.addEventListener("change", (event) => {
   username = usernameField.value;
 });
@@ -470,7 +471,6 @@ function getDailySeedString() {
 function handleKeyDown(e) {
   const key = e.key.toLowerCase();
   if (key in keys) {
-    e.preventDefault();
     keys[key] = true;
   }
 }
