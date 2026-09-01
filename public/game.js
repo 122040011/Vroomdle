@@ -8,13 +8,13 @@ let uid = null;
 let username = null;
 let time = 0;
 let bestTime = null;
-let timerInterval = null;
 let animationFrameId = null;
 let gameMode = "daily";
 let seed = getSeed();
 let scale = 1;
 let relativeScale = 1;
 let channelID = null;
+let lastFrameTime = null;
 
 const urlParams = new URLSearchParams(window.location.search);
 //Auth and login
@@ -41,16 +41,17 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
 // Car state
+// Physics values are now per-second instead of per-frame
 const car = {
   x: 100,
   y: 300,
   angle: 0,
   speed: 0,
-  maxSpeed: 3 * relativeScale,
-  acceleration: 0.003 * relativeScale,
-  friction: 0.001 * relativeScale,
-  turnSpeed: 0.02,
-  currentSegmentIndex: 0, // Track which segment the car is on
+  maxSpeed: 250 * relativeScale,
+  acceleration: 60 * relativeScale,
+  friction: 60 * relativeScale,
+  turnSpeed: 2.45,
+  currentSegmentIndex: 0,
   prevX: 100,
   prevY: 300,
 };
@@ -126,7 +127,7 @@ function loadFreeplay() {
 function loadDaily() {
   gameMode = "daily";
   loadGame();
-  startGame();
+  resetGame();
   menuOverlay.classList.remove("hidden");
   winOverlay.classList.add("hidden");
   gameState = "menu";
@@ -523,14 +524,9 @@ function startGame() {
   gameState = "playing";
   menuOverlay.classList.add("hidden");
   winOverlay.classList.add("hidden");
-  // timerDisplay.classList.remove("hidden");
 
-  // Start timer
-  if (timerInterval) clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    if (gameState == "playing") time += 0.01;
-    updateTimeDisplay();
-  }, 10);
+  // Reset frame time for delta calculation
+  lastFrameTime = null;
 
   // Start game loop
   if (!animationFrameId) {
@@ -541,10 +537,6 @@ function startGame() {
 function endGame() {
   gameState = "won";
 
-  if (timerInterval) {
-    clearInterval(timerInterval);
-    timerInterval = null;
-  }
   //submit score to DB
   if (gameMode == "daily")
     reqToBackend.updateTimeReq(
@@ -569,7 +561,9 @@ function endGame() {
 }
 
 function updateTimeDisplay() {
-  currentTimeDisplay.textContent = time.toFixed(2) + "s";
+  if (gameState == "playing")
+    currentTimeDisplay.textContent = time.toFixed(2) + "s";
+  else currentTimeDisplay.textContent = "0.00" + "s";
 }
 
 function updateBestTimeDisplay() {
@@ -738,45 +732,51 @@ function drawCar() {
 // ============================================
 // PHYSICS AND SEGMENT-BASED COLLISION
 // ============================================
-function updateGame() {
+function updateGame(deltaTime) {
   if (gameState !== "playing") return;
 
-  // Handle acceleration
+  // Handle acceleration (deltaTime is in seconds)
   if (keys.w) {
-    car.speed = Math.min(car.speed + car.acceleration, car.maxSpeed);
+    car.speed = Math.min(
+      car.speed + car.acceleration * deltaTime,
+      car.maxSpeed,
+    );
   } else if (keys.s) {
     if (car.speed > 0) {
       car.speed = Math.max(
-        car.speed - car.acceleration * 5,
+        car.speed - car.acceleration * 5 * deltaTime,
         -car.maxSpeed * 0.15,
       );
     } else {
-      car.speed = Math.max(car.speed - car.acceleration, -car.maxSpeed * 0.15);
+      car.speed = Math.max(
+        car.speed - car.acceleration * deltaTime,
+        -car.maxSpeed * 0.15,
+      );
     }
-  } else if (car.speed > 0.1) {
-    car.speed -= car.friction;
+  } else if (car.speed > 10) {
+    car.speed -= car.friction * deltaTime;
   }
 
   // Handle turning
-  if (car.speed > 0.1) {
+  if (car.speed > 6) {
     if (keys.a || keys.j) {
-      car.angle -= car.turnSpeed;
+      car.angle -= car.turnSpeed * deltaTime;
     }
     if (keys.d || keys.l) {
-      car.angle += car.turnSpeed;
+      car.angle += car.turnSpeed * deltaTime;
     }
-  } else if (car.speed < -0.1) {
+  } else if (car.speed < -6) {
     if (keys.a || keys.j) {
-      car.angle += car.turnSpeed;
+      car.angle += car.turnSpeed * deltaTime;
     }
     if (keys.d || keys.l) {
-      car.angle -= car.turnSpeed;
+      car.angle -= car.turnSpeed * deltaTime;
     }
   }
 
-  // Calculate new position
-  const newX = car.x + Math.cos(car.angle) * car.speed;
-  const newY = car.y + Math.sin(car.angle) * car.speed;
+  // Calculate new position (speed is already in pixels per second, multiply by deltaTime)
+  const newX = car.x + Math.cos(car.angle) * car.speed * deltaTime;
+  const newY = car.y + Math.sin(car.angle) * car.speed * deltaTime;
 
   // Check collision with current segment and adjacent segments (±1)
   const segmentsToCheck = [];
@@ -1004,11 +1004,23 @@ function checkFinish() {
 // ============================================
 // GAME LOOP
 // ============================================
-function gameLoop() {
+function gameLoop(currentTime) {
+  // Calculate delta time in seconds
+  if (lastFrameTime === null) {
+    lastFrameTime = currentTime;
+  }
+  const deltaTime = (currentTime - lastFrameTime) / 1000; // Convert ms to seconds
+  lastFrameTime = currentTime;
+  time += deltaTime;
+  updateTimeDisplay();
+
+  // Cap delta time to prevent large jumps (e.g., when tab is inactive)
+  const cappedDeltaTime = Math.min(deltaTime, 0.1);
+
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   drawTrack();
-  updateGame();
+  updateGame(cappedDeltaTime);
 
   animationFrameId = requestAnimationFrame(gameLoop);
 }
