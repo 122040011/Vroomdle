@@ -752,12 +752,19 @@ function updateGame() {
   }
 
   // Handle turning
-  if (Math.abs(car.speed) > 0.1) {
+  if (car.speed > 0.1) {
     if (keys.a || keys.j) {
       car.angle -= car.turnSpeed;
     }
     if (keys.d || keys.l) {
       car.angle += car.turnSpeed;
+    }
+  } else if (car.speed < -0.1) {
+    if (keys.a || keys.j) {
+      car.angle += car.turnSpeed;
+    }
+    if (keys.d || keys.l) {
+      car.angle -= car.turnSpeed;
     }
   }
 
