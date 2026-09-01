@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" version="1.1" width="810" height="810" viewBox="0 0 810 810">
+<defs>
+<clipPath id="clip_1">
+<path transform="matrix(.24,0,0,.24,0,0)" d="M0 0H3375V3375H0Z" clip-rule="evenodd"/>
+</clipPath>
+<clipPath id="clip_2">
+<path transform="matrix(.24,0,0,.24,0,0)" d="M0 0H3375V3375H0Z" clip-rule="evenodd"/>
+</clipPath>
+<clipPath id="clip_3">
+<path transform="matrix(.24,0,0,.24,0,0)" d="M45.59407 739.5265H3261.4884V2491.7984H45.59407Z" clip-rule="evenodd"/>
+</clipPath>
+<clipPath id="clip_4">
+<path transform="matrix(.24,0,0,.24,10.8,177.36)" d="M0 0H3217V1753H0Z" clip-rule="evenodd"/>
+</clipPath>
+<clipPath id="clip_5">
+<path transform="matrix(.24,0,0,.24,0,0)" d="M2477.041 654.6296H3329.4058V1714.1428H2477.041Z" clip-rule="evenodd"/>
+</clipPath>
+<clipPath id="clip_6">
+<path transform="matrix(.24,0,0,.24,594.48,156.95999)" d="M0 0H853V1061H0Z" clip-rule="evenodd"/>
+</clipPath>
+<clipPath id="clip_7">
+<path transform="matrix(.24,0,0,.24,0,0)" d="M0 0H3375V3375H0Z"/>
+</clipPath>
+<clipPath id="clip_8">
+<path transform="matrix(.24,0,0,.24,0,0)" d="M0 0H3375V3375H0Z"/>
+</clipPath>
+<clipPath id="clip_9">
+<path transform="matrix(.24,0,0,.24,0,0)" d="M361.56999 2046.2891H1035.6513V2720.3704H361.56999Z"/>
+</clipPath>
+<clipPath id="clip_10">
+<path transform="matrix(.24,0,0,.24,0,0)" d="M698.6106 2046.2891C512.4682 2046.2891 361.56999 2197.1873 361.56999 2383.3297 361.56999 2569.4722 512.4682 2720.3704 698.6106 2720.3704 884.75308 2720.3704 1035.6513 2569.4722 1035.6513 2383.3297 1035.6513 2197.1873 884.75308 2046.2891 698.6106 2046.2891Z"/>
+</clipPath>
+<clipPath id="clip_11">
+<path transform="matrix(.24,0,0,.24,86.64,491.03999)" d="M0 0H675V675H0Z"/>
+</clipPath>
+<clipPath id="clip_12">
+<path transform="matrix(.24,0,0,.24,0,0)" d="M0 0H3375V3375H0Z"/>
+</clipPath>
+<clipPath id="clip_13">
+<path transform="matrix(.24,0,0,.24,0,0)" d="M0 0H3375V3375H0Z"/>
+</clipPath>
+<clipPath id="clip_14">
+<path transform="matrix(.24,0,0,.24,0,0)" d="M2229.142 2046.2891H2903.2235V2720.3704H2229.142Z"/>
+</clipPath>
+<clipPath id="clip_15">
+<path transform="matrix(.24,0,0,.24,0,0)" d="M2566.1827 2046.2891C2380.0404 2046.2891 2229.142 2197.1873 2229.142 2383.3297 2229.142 2569.4722 2380.0404 2720.3704 2566.1827 2720.3704 2752.3253 2720.3704 2903.2235 2569.4722 2903.2235 2383.3297 2903.2235 2197.1873 2752.3253 2046.2891 2566.1827 2046.2891Z"/>
+</clipPath>
+<clipPath id="clip_16">
+<path transform="matrix(.24,0,0,.24,534.95999,491.03999)" d="M0 0H675V675H0Z"/>
+</clipPath>
+</defs>
+<g>
+<g clip-path="url(#clip_3)">
+<g>
+<g clip-path="url(#clip_4)">
+<path transform="matrix(1.6427548,0,0,1.6427548,10.942577,177.48636)" d="M0 0H470V256H0Z" fill="#548c4e"/>
+</g>
+</g>
+</g>
+<g clip-path="url(#clip_5)">
+<g>
+<g clip-path="url(#clip_6)">
+<path transform="matrix(.799092,0,0,.799092,594.4898,157.11109)" d="M0 0H256V318H0Z"/>
+</g>
+</g>
+</g>
+<g clip-path="url(#clip_7)">
+<g clip-path="url(#clip_8)">
+<g clip-path="url(#clip_9)">
+<g clip-path="url(#clip_10)">
+<g>
+<g clip-path="url(#clip_11)">
+<path transform="matrix(.6319512,0,0,.6319512,86.776798,491.10935)" d="M0 0H256V256H0Z"/>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g clip-path="url(#clip_12)">
+<g clip-path="url(#clip_13)">
+<g clip-path="url(#clip_14)">
+<g clip-path="url(#clip_15)">
+<g>
+<g clip-path="url(#clip_16)">
+<path transform="matrix(.6319512,0,0,.6319512,534.9941,491.10935)" d="M0 0H256V256H0Z"/>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<path transform="matrix(1,0,0,-1,0,817.92)" d="M594.48989 406.52574H799.05746V660.8089H594.48989Z" fill-opacity="0"/>
+<path transform="matrix(1,0,0,-1,0,817.92)" d="M10.942577 219.8884H782.7572V640.43368H10.942577Z" fill-opacity="0"/>
+<path transform="matrix(1,0,0,-1,0,817.92)" d="M86.776798 165.03112H248.55632V326.81065H86.776798Z" fill-opacity="0"/>
+<path transform="matrix(1,0,0,-1,0,817.92)" d="M534.99417 165.03112H696.7737V326.81065H534.99417Z" fill-opacity="0"/>
+</g>
+</svg>

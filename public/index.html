@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vroomdle - Racing Game</title>
     <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/svg+xml" href="./icon.svg">
     <script type="importmap">
       {
         "imports": {
@@ -15,10 +16,19 @@
   </head>
   <body>
     <div class="page-container">
-      <!-- Header -->
-      <div class="header">
-        <h1 class="title">VROOMDLE</h1>
-        <p class="subtitle">Vroom Vroom</p>
+      <div class="topBar">
+        <div class="leftInfo">
+          <img src="./icon.svg"/>
+          <div class="vertContainerText">
+            <input type="text" id="usernameField" placeholder="Guest"></p>
+            <p id="isVrooming">&nbsp;is Vrooming...</p>
+          </div>
+        </div>
+        <div class="header">
+          <h1 class="title">VROOMDLE</h1>
+          <p class="subtitle">Vroom Vroom</p>
+        </div>
+        <div></div>
       </div>
 
       <!-- Main Game Area -->

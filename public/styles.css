@@ -25,12 +25,16 @@ body {
   gap: 24px;
   max-width: 1200px;
 
-  width: min(100vw - 32px, (100vh - 32px) * (4 / 3));
-  height: min(100vh - 32px, (100vw - 32px) * (3 / 4));
+  width: min(100vw - 32px, (100vh - 32px) * (5 / 3));
+  height: min(100vh - 32px, (100vw - 32px) * (3 / 5));
 }
 
 /* Header Styles */
 .header {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+
   text-align: center;
 }
 
@@ -40,6 +44,41 @@ body {
   color: #121213;
   margin: 0 0 10px 0;
   letter-spacing: 0.5px;
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  position: relative;
+  justify-content: space-between;
+}
+
+.leftInfo {
+  display: flex;
+}
+
+.leftInfo img {
+  width: 46px;
+  height: 46px;
+  margin: 10px;
+}
+.vertContainerText {
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+}
+#usernameField {
+  font-size: 30px;
+  font-weight: 700;
+  color: black;
+  border: none;
+}
+
+#isVrooming {
+  font-size: 16px;
+  font-weight: 400;
+  color: #4a7c44;
 }
 
 .subtitle {

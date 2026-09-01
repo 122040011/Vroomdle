@@ -84,6 +84,7 @@ const bestTimeDisplay = document.getElementById("bestTimeDisplay");
 const newBestTimeDisplay = document.getElementById("newBestTime");
 const leaderboardPanel = document.getElementById("leaderboardPanel");
 const leaderboardToggle = document.getElementById("leaderboardToggle");
+const usernameField = document.getElementById("usernameField");
 
 // Event Listeners
 window.addEventListener("keydown", handleKeyDown);
@@ -93,6 +94,9 @@ restartButton.addEventListener("click", startGame);
 dailyButton.addEventListener("click", loadDaily);
 freeplayButton.addEventListener("click", loadFreeplay);
 timerResetButton.addEventListener("click", startGame);
+usernameField.addEventListener("change", (event) => {
+  username = usernameField.value;
+});
 
 // Leaderboard toggle
 leaderboardToggle.addEventListener("click", () => {
