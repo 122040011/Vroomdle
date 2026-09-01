@@ -86,6 +86,7 @@ const newBestTimeDisplay = document.getElementById("newBestTime");
 const leaderboardPanel = document.getElementById("leaderboardPanel");
 const leaderboardToggle = document.getElementById("leaderboardToggle");
 const usernameField = document.getElementById("usernameField");
+usernameField.value = username;
 
 // Event Listeners
 window.addEventListener("keydown", handleKeyDown);
