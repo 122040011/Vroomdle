@@ -1,4 +1,5 @@
 import * as helper from "../public/helper.mjs";
+import * as imageRender from "./imageRender.mjs";
 
 const url = process.env.WEB_URL;
 
@@ -28,24 +29,28 @@ export async function getLeaderboard(date, channelID = null) {
 }
 
 async function writeToChannel(channelID) {
+  if (!(await canBotPostToChannel(channelID))) return;
+
   const data = await getLeaderboard(dateString, channelID);
   const leaderboard = data.data;
+  console.log(channelID, leaderboard);
   let message = `Today's Results (${dateString.split("T")[0]})\n`;
-  for (let i in leaderboard) {
-    //render?
+  const canvas = imageRender.renderLeaderboard(leaderboard);
+  const imageBuffer = canvas.toBuffer(`image/png`);
+  const formData = new FormData();
+  const payloadJson = {
+    content: message,
+    attachments: [
+      {
+        id: 0,
+        description: "Leaderboard Image",
+        filename: "leaderboard.png",
+      },
+    ],
+  };
 
-    const num = `${parseInt(i) + 1}.`.padStart(3, " ");
-    const name = String(leaderboard[i].username).slice(0, 10).padEnd(15, " ");
-    const time = helper
-      .formatTimeDisplay(String(leaderboard[i].recordTime))
-      .padStart(10, " ");
-
-    message += `${num} ${name} ${time}\n`;
-  }
-
-  console.log(message);
-
-  //render leaderboard OR plain text with emojis?
+  formData.append("payload_json", JSON.stringify(payloadJson));
+  formData.append("files[0]", new Blob([imageBuffer]), "leaderboard.png");
 
   //curl request
   const response = await fetch(
@@ -54,14 +59,10 @@ async function writeToChannel(channelID) {
       method: "POST",
       headers: {
         Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
-        "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        content: message,
-      }),
+      body: formData,
     },
   );
-  console.log(response);
   if (!response.ok) {
     const errorData = await response.json();
     console.error(`Error for Channel ID "${channelID}":`, errorData);
@@ -70,12 +71,40 @@ async function writeToChannel(channelID) {
   return;
 }
 
+async function canBotPostToChannel(channelID) {
+  //get channel metadata
+  try {
+    const res = await fetch(
+      `https://discord.com/api/v10/channels/${channelID}`,
+      {
+        method: "GET",
+        headers: { Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}` },
+      },
+    );
+
+    if (!res.ok) {
+      console.warn(`Bot cannot access channel ${channelID}: ${res.statusText}`);
+      return false;
+    }
+
+    const channel = await res.json();
+
+    // Check if DM
+    if (!channel.guild_id) {
+      return false;
+    }
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 const dateString = new Date().toISOString();
 const channels = await getChannelsReq(dateString);
 
-console.log(channels);
-
 for (let channel of channels.data) {
-  console.log(channel.channelID);
   writeToChannel(channel.channelID);
 }
+
+console.log("done");
