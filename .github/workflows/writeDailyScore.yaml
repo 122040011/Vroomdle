@@ -24,8 +24,8 @@ jobs:
       - name: Run Bot Script
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
-          WEB_URL: ${{ secrets.WEB_URL }}
+          WEB_URL: ${{ variables.WEB_URL }}
           BACKEND_PASSWORD: ${{secrets.BACKEND_PASSWORD}}
-          DISCORD_ACTIVITY_LINK: ${{secrets.DISCORD_ACTIVITY_LINK}}
+          DISCORD_ACTIVITY_LINK: ${{variables.DISCORD_ACTIVITY_LINK}}
 
         run: node ./discordBot/discordBotAction.mjs
