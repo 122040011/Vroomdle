@@ -1,5 +1,5 @@
 import * as reqToBackend from "./reqToBackend.js";
-import * as helper from "./helper.js";
+import * as helper from "./helper.mjs";
 import * as discordAuthFront from "./discordAuthFront.js";
 
 // Game State

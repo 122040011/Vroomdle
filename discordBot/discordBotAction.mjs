@@ -1,4 +1,4 @@
-import * as helper from "../public/helper.js";
+import * as helper from "../public/helper.mjs";
 
 const url = process.env.WEB_URL;
 
@@ -30,10 +30,12 @@ export async function getLeaderboard(date, channelID = null) {
 async function writeToChannel(channelID) {
   const data = await getLeaderboard(dateString, channelID);
   const leaderboard = data.data;
-  let message = `Today's Results (${dateString})\n`;
+  let message = `Today's Results (${dateString.split("T")[0]})\n`;
   for (let i in leaderboard) {
+    //render?
+
     const num = `${parseInt(i) + 1}.`.padStart(3, " ");
-    const name = String(leaderboard[i].username).slice(0, 15).padEnd(15, " ");
+    const name = String(leaderboard[i].username).slice(0, 10).padEnd(15, " ");
     const time = helper
       .formatTimeDisplay(String(leaderboard[i].recordTime))
       .padStart(10, " ");

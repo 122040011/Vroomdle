@@ -15,6 +15,6 @@ export function formatToPostgresTime3(totalSeconds) {
 
 export function formatTimeDisplay(timeString) {
   const [hh, mm, ss, mmm] = timeString.split(/[:.]/);
-  const padmmm = mmm.padEnd(2, "0");
+  const padmmm = mmm.padEnd(3, "0");
   return `${mm}:${ss}.${padmmm}`;
 }
