@@ -106,9 +106,11 @@ async function getLeaderboard(date, channelID = null) {
   }
 }
 
-async function getChannels(date) {
+async function getChannels(date, BACKEND_PASSWORD) {
   try {
     let result;
+    if (BACKEND_PASSWORD !== process.env.BACKEND_PASSWORD)
+      throw new TypeError("Wrong Backend Password");
     if (date == null) throw new TypeError("Null date/channelID");
 
     result = await sql`
@@ -153,7 +155,15 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { action, uid, username, date, recordTime, channelID } = req.body;
+    const {
+      action,
+      uid,
+      username,
+      date,
+      recordTime,
+      channelID,
+      backendPassword,
+    } = req.body;
 
     let result;
 
@@ -170,7 +180,7 @@ export default async function handler(req, res) {
         result = await getLeaderboard(date, channelID);
         break;
       case "getChannels":
-        result = await getChannels(date);
+        result = await getChannels(date, backendPassword);
         break;
 
       default:

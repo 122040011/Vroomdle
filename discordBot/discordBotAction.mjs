@@ -10,6 +10,7 @@ export async function getChannelsReq(date) {
     body: JSON.stringify({
       action: "getChannels",
       date: date,
+      backendPassword: process.env.BACKEND_PASSWORD,
     }),
   });
   return await response.json();
@@ -45,6 +46,19 @@ async function writeToChannel(channelID) {
         id: 0,
         description: "Leaderboard Image",
         filename: "leaderboard.png",
+      },
+    ],
+    components: [
+      {
+        type: 1,
+        components: [
+          {
+            type: 2,
+            label: "Vroooom",
+            style: 5,
+            url: process.env.DISCORD_ACTIVITY_LINK,
+          },
+        ],
       },
     ],
   };
@@ -101,7 +115,7 @@ async function canBotPostToChannel(channelID) {
 }
 
 const dateString = new Date().toISOString();
-const channels = await getChannelsReq(dateString);
+const channels = await getChannelsReq(dateString, process.env.BACKEND_PASSWORD);
 
 for (let channel of channels.data) {
   writeToChannel(channel.channelID);
