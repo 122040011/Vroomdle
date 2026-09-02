@@ -106,8 +106,36 @@ async function getLeaderboard(date, channelID = null) {
   }
 }
 
+async function getChannels(date) {
+  try {
+    let result;
+    if (date == null) throw new TypeError("Null date/channelID");
+
+    result = await sql`
+        SELECT
+          DISTINCT "channelID"
+        FROM "VroomdleScores"
+        WHERE date = ${date}
+          AND "recordTime" IS NOT NULL
+          AND "channelID" IS NOT NULL
+      `;
+
+    return {
+      success: true,
+      data: result,
+      count: result.length,
+    };
+  } catch (error) {
+    console.error(`Error fetching channels on date: ${date}`, error);
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
+}
+
 // Export functions for use in API routes
-export { sendIncrementTrial, updateTime, getLeaderboard };
+export { sendIncrementTrial, updateTime, getLeaderboard, getChannels };
 
 // Example API route handler for Vercel
 export default async function handler(req, res) {
@@ -140,6 +168,9 @@ export default async function handler(req, res) {
 
       case "getLeaderboard":
         result = await getLeaderboard(date, channelID);
+        break;
+      case "getChannels":
+        result = await getChannels(date);
         break;
 
       default:
