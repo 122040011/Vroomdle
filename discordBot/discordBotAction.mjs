@@ -1,7 +1,8 @@
-import * as helper from "../public/helper.mjs";
 import * as imageRender from "./imageRender.mjs";
+import { createCanvas } from "@napi-rs/canvas";
 
 const url = process.env.WEB_URL;
+let trackCanvas = null;
 
 export async function getChannelsReq(date) {
   const response = await fetch(`${url}/api/requestToDb`, {
@@ -36,8 +37,14 @@ async function writeToChannel(channelID) {
   const leaderboard = data.data;
   console.log(channelID, leaderboard);
   let message = `Today's Results (${dateString.split("T")[0]})\n`;
-  const canvas = imageRender.renderLeaderboard(leaderboard);
-  const imageBuffer = canvas.toBuffer(`image/png`);
+  const leaderboardCanvas = imageRender.renderLeaderboard(leaderboard);
+  const trackCanvas = imageRender.renderTrack();
+  const ctx = trackCanvas.getContext("2d");
+  ctx.drawImage(leaderboardCanvas, 50, 50, 300, 487.5);
+
+  //combine canvas and trackCanvas
+
+  const imageBuffer = trackCanvas.toBuffer(`image/png`);
   const formData = new FormData();
   const payloadJson = {
     content: message,
@@ -117,6 +124,7 @@ async function canBotPostToChannel(channelID) {
 const dateString = new Date().toISOString();
 const channels = await getChannelsReq(dateString, process.env.BACKEND_PASSWORD);
 
+trackCanvas = imageRender.renderTrack();
 for (let channel of channels.data) {
   writeToChannel(channel.channelID);
 }

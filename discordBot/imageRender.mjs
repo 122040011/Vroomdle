@@ -1,4 +1,5 @@
 import { createCanvas } from "@napi-rs/canvas";
+import * as trackGenerator from "./gameCopy.mjs";
 
 export function renderLeaderboard(leaderboardData = []) {
   const canvas = createCanvas(400, 650);
@@ -6,15 +7,11 @@ export function renderLeaderboard(leaderboardData = []) {
   const canvasWidth = 400;
   const canvasHeight = 650;
 
-  // Background
-  ctx.fillStyle = "#FFFFFF";
-  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-
   ctx.fillStyle = "#111111";
   ctx.font = "900 28px sans-serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "top";
-  ctx.fillText("TOP 10", canvasWidth / 2, 20);
+  ctx.fillText("LEADERBOARD", canvasWidth / 2, 20);
 
   const startY = 70;
   const cardWidth = 340;
@@ -24,10 +21,10 @@ export function renderLeaderboard(leaderboardData = []) {
   const startX = (canvasWidth - cardWidth) / 2;
 
   const rankStyles = {
-    1: { bg: "#FFD700", text: "#111111", time: "#2E7D32" },
-    2: { bg: "#C0C0C0", text: "#111111", time: "#2E7D32" },
-    3: { bg: "#CD7F32", text: "#111111", time: "#2E7D32" },
-    default: { bg: "#F2F2F2", text: "#111111", time: "#388E3C" },
+    1: { bg: "#ffd900b7", text: "#111111", time: "#2E7D32" },
+    2: { bg: "#c0c0c0b2", text: "#111111", time: "#2E7D32" },
+    3: { bg: "#cd8032b3", text: "#111111", time: "#2E7D32" },
+    default: { bg: "#f2f2f2b4", text: "#111111", time: "#388E3C" },
   };
 
   for (let i = 1; i <= 10; i++) {
@@ -77,5 +74,13 @@ export function renderLeaderboard(leaderboardData = []) {
       );
     }
   }
+  return canvas;
+}
+
+export function renderTrack() {
+  const seed = trackGenerator.getSeed();
+  const { segments, trackMetadata } =
+    trackGenerator.generateTrackSegments(seed);
+  const canvas = trackGenerator.drawTrack(segments, trackMetadata);
   return canvas;
 }
