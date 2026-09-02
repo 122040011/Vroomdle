@@ -30,10 +30,10 @@ if (isDiscord) {
   console.log(userDetail);
   username = userDetail.userdata.userData.username;
   uid = userDetail.userdata.userData.id;
-  channelID = userDetail.guildID; //separate by server
+  // channelID = userDetail.guildID; //separate by server
 
   //use if you want to separate by channel
-  // channelID = userDetail.channelID;
+  channelID = userDetail.channelID;
 }
 
 // Canvas setup
