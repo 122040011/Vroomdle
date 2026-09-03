@@ -38,13 +38,15 @@ async function writeToChannel(channelID) {
   console.log(channelID, leaderboard);
   let message = `Today's Results (${dateString.split("T")[0]})\n`;
   const leaderboardCanvas = imageRender.renderLeaderboard(leaderboard);
-  const trackCanvas = imageRender.renderTrack();
-  const ctx = trackCanvas.getContext("2d");
-  ctx.drawImage(leaderboardCanvas, 50, 50, 300, 487.5);
+
+  const mainCanvas = createCanvas(1600, 1200);
+  const ctx = mainCanvas.getContext("2d");
+  ctx.drawImage(trackCanvas, 0, 0, 1600, 1200);
+  ctx.drawImage(leaderboardCanvas, 100, 100, 600, 975);
 
   //combine canvas and trackCanvas
 
-  const imageBuffer = trackCanvas.toBuffer(`image/png`);
+  const imageBuffer = mainCanvas.toBuffer(`image/png`);
   const formData = new FormData();
   const payloadJson = {
     content: message,
