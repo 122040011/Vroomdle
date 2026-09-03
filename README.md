@@ -49,13 +49,17 @@ The webapp is deployed on the following services:
 ## Env Secrets and Variables
 
 - Vercel
-  - **DISCORD_CLIENT_ID** (vars/secrets | from Discord Developer Portal)
-  - **DISCORD_CLIENT_SECRET** (secrets | from Discord Developer Portal)
-  - **DATABASE_URL** (secrets| from Neon DB)
-  - **BACKEND_PASSWORD** (secrets | up to you)
+  | Name | Type | Source |
+  | ------------- |:-------------:| :-------------:|
+  | **DISCORD_CLIENT_ID** | vars/secrets | from Discord Developer Portal|
+  | **DISCORD_CLIENT_SECRET** | secrets | from Discord Developer Portal|
+  | **DATABASE_URL** |secrets| from Neon DB|
+  | **BACKEND_PASSWORD** |secrets | up to you|
 
 - Github Actions
-  - **BACKEND_PASSWORD** (secrets | up to you, ensure matches)
-  - **DISCORD_BOT_TOKEN** (secrets | Discord Developer Portal)
-  - **DISCORD_ACTIVITY_LINK** (vars | Discord Developer Portal)
-  - **WEB_URL** (vars | Website url hosted)
+  | Name | Type | Source |
+  | ------------- |:-------------:| :-------------:|
+  | **BACKEND_PASSWORD** |secrets | up to you, ensure matches|
+  | **DISCORD_BOT_TOKEN** |secrets | Discord Developer Portal|
+  | **DISCORD_ACTIVITY_LINK** |vars | Discord Developer Portal|
+  | **WEB_URL** |vars | Website url hosted|
