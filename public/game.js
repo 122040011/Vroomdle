@@ -702,15 +702,17 @@ function drawTrack() {
 
     ctx.restore();
   }
+  drawCar(90);
 }
 
-function drawCar() {
+function drawCar(opacity = 255) {
+  const opacityString = opacity.toString(16);
   ctx.save();
   ctx.translate(car.x, car.y);
   ctx.rotate(car.angle);
 
   // Car body
-  ctx.fillStyle = "#538d4e";
+  ctx.fillStyle = "#538d4e" + opacityString;
   ctx.fillRect(
     -15 * relativeScale,
     -10 * relativeScale,
@@ -719,7 +721,7 @@ function drawCar() {
   );
 
   // Car front indicator
-  ctx.fillStyle = "#121213";
+  ctx.fillStyle = "#121213" + opacityString;
   ctx.fillRect(
     12 * relativeScale,
     -6 * relativeScale,
