@@ -477,4 +477,29 @@ body {
     gap: 12px;
     margin-right: 40px;
   }
+
+  .leaderboard-content {
+    width: 200px;
+    height: 100%;
+  }
+
+  .leaderboard-panel.open {
+    transform: translateX(calc(100% - 200px));
+  }
+
+  .rank {
+    font-size: 14;
+  }
+
+  .player-name {
+    font-size: 10;
+  }
+
+  .player-time {
+    font-size: 10;
+  }
+
+  .leaderboard-item {
+    grid-template-columns: 20px 1fr auto;
+  }
 }
