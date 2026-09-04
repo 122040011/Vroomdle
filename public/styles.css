@@ -478,13 +478,39 @@ body {
     margin-right: 40px;
   }
 
-  .leaderboard-content {
-    width: 200px;
-    height: 100%;
+  .leaderboard-panel {
+    left: 0;
+    transform: translateX(-100%);
+    flex-direction: row-reverse;
   }
 
   .leaderboard-panel.open {
-    transform: translateX(calc(100% - 200px));
+    transform: translateX(calc(-100% + 200px));
+  }
+
+  .leaderboard-toggle {
+    border-left: none;
+    border-right: 2px solid #d3d6da;
+    border-radius: 0 8px 8px 0;
+    clip-path: polygon(0 20%, 0 80%, 100% 100%, 100% 0);
+    padding-left: 8px;
+    padding-right: 0;
+  }
+
+  .leaderboard-toggle svg {
+    transform: rotate(90deg);
+  }
+
+  .leaderboard-panel.open .leaderboard-toggle svg {
+    transform: rotate(-90deg);
+  }
+
+  .leaderboard-content {
+    width: 200px;
+    height: 100%;
+    border-left: none;
+    border-right: 2px solid #d3d6da;
+    border-radius: 0 4px 4px 0;
   }
 
   .rank {
