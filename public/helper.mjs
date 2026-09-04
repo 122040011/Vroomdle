@@ -17,6 +17,5 @@ export function formatTimeDisplay(timeString) {
   const [hh, mm, ss, mmm] = timeString.split(/[:.]/);
   const padmmm = mmm.padEnd(3, "0");
   const seconds = parseInt(hh) * 3600 + parseInt(mm) * 60 + parseInt(ss);
-  console.log(seconds);
   return `${seconds}.${padmmm}`;
 }
