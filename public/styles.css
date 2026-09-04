@@ -113,6 +113,9 @@ body {
   font-weight: bold;
   border: none;
   cursor: pointer;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
   clip-path: polygon(
     0px 0px,
     60px 0px,
