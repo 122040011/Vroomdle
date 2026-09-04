@@ -3,7 +3,7 @@ import * as helper from "./helper.mjs";
 import * as discordAuthFront from "./discordAuthFront.js";
 
 // Game State
-let gameState = "menu"; // menu, playing, won
+let gameState = "menu"; // paused, playing, won
 let uid = null;
 let username = null;
 let time = 0;
@@ -472,6 +472,7 @@ function getDailySeedString() {
 
 function handleKeyDown(e) {
   const key = e.key.toLowerCase();
+  if (key == "r") startGame();
   if (key in keys) {
     keys[key] = true;
   }
@@ -522,7 +523,7 @@ function startGame() {
   updateTimeDisplay();
 
   // Update UI
-  gameState = "playing";
+  gameState = "paused";
   menuOverlay.classList.add("hidden");
   winOverlay.classList.add("hidden");
 
@@ -736,6 +737,12 @@ function drawCar(opacity = 255) {
 // PHYSICS AND SEGMENT-BASED COLLISION
 // ============================================
 function updateGame(deltaTime) {
+  if (
+    gameState === "paused" &&
+    (keys.w || keys.s || keys.a || keys.d || keys.j || keys.l)
+  )
+    gameState = "playing";
+
   if (gameState !== "playing") return;
 
   // Handle acceleration (deltaTime is in seconds)
@@ -1014,7 +1021,8 @@ function gameLoop(currentTime) {
   }
   const deltaTime = (currentTime - lastFrameTime) / 1000; // Convert ms to seconds
   lastFrameTime = currentTime;
-  time += deltaTime;
+  if (gameState === "playing") time += deltaTime;
+  else time = 0;
   updateTimeDisplay();
 
   // Cap delta time to prevent large jumps (e.g., when tab is inactive)
