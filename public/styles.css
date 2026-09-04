@@ -108,25 +108,21 @@ body {
 .controlButton {
   width: 80px;
   height: 80px;
-  background-color: #4a7c44;
-  color: #4a7c44;
-  font-weight: bold;
+  background-color: transparent;
   border: none;
   cursor: pointer;
   touch-action: none;
   -webkit-user-select: none;
   user-select: none;
-  clip-path: polygon(
-    0px 0px,
-    60px 0px,
-    80px 40px,
-    60px 80px,
-    0px 80px,
-    20px 40px
-  );
   margin: 8px;
   flex-shrink: 0;
-  transition: background-color 0.2s;
+  padding: 0;
+
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><polygon points="0,0 60,0 80,40 60,80 0,80 20,40" fill="%234a7c44"/></svg>');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: background-image 0.2s;
 }
 
 .controlButton:hover {
