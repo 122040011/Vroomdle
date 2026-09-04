@@ -15,7 +15,7 @@ let scale = 1;
 let relativeScale = 1;
 let channelID = null;
 let lastFrameTime = null;
-
+let usernameFocus = false;
 const urlParams = new URLSearchParams(window.location.search);
 //Auth and login
 const isDiscord =
@@ -99,6 +99,14 @@ timerResetButton.addEventListener("click", startGame);
 
 usernameField.addEventListener("change", (event) => {
   username = usernameField.value;
+});
+
+usernameField.addEventListener("focus", (event) => {
+  usernameFocus = true;
+});
+
+usernameField.addEventListener("blur", (event) => {
+  usernameFocus = false;
 });
 
 // Leaderboard toggle
@@ -471,6 +479,7 @@ function getDailySeedString() {
 }
 
 function handleKeyDown(e) {
+  if (usernameFocus) return;
   const key = e.key.toLowerCase();
   if (key == "r") startGame();
   if (key in keys) {
@@ -479,6 +488,7 @@ function handleKeyDown(e) {
 }
 
 function handleKeyUp(e) {
+  if (usernameFocus) return;
   const key = e.key.toLowerCase();
   if (key in keys) {
     keys[key] = false;
