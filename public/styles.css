@@ -171,21 +171,21 @@ body {
   position: relative;
 }
 
-/* Leaderboard Panel - Slides Behind Canvas from Left */
+/* Leaderboard Panel - Slides Behind Canvas from Right */
 .leaderboard-panel {
   position: absolute;
-  left: 0;
+  right: 0;
   top: 0;
   display: flex;
   align-items: stretch;
   height: 100%; /* Match gameCanvas height */
   transition: transform 0.3s ease;
-  transform: translateX(-100%);
+  transform: translateX(100%);
   z-index: 5;
 }
 
 .leaderboard-panel.open {
-  transform: translateX(calc(-100% + 280px));
+  transform: translateX(calc(100% - 280px));
 }
 
 .leaderboard-toggle {
@@ -193,16 +193,16 @@ body {
   height: 80px;
   background-color: #538d4e;
   border: 2px solid #d3d6da;
-  border-left: none;
-  border-radius: 0 8px 8px 0;
+  border-right: none;
+  border-radius: 8px 0 0 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #ffffff;
   transition: all 0.2s;
-  clip-path: polygon(0 20%, 0 80%, 100% 100%, 100% 0);
-  padding-left: 8px;
+  clip-path: polygon(0 0, 0 100%, 100% 80%, 100% 20%);
+  padding-right: 8px;
   flex-shrink: 0;
   align-self: center;
 }
@@ -212,12 +212,12 @@ body {
 }
 
 .leaderboard-toggle svg {
-  transform: rotate(90deg);
+  transform: rotate(-90deg);
   transition: transform 0.3s ease;
 }
 
 .leaderboard-panel.open .leaderboard-toggle svg {
-  transform: rotate(-90deg);
+  transform: rotate(90deg);
 }
 
 .leaderboard-content {
@@ -225,8 +225,8 @@ body {
   height: 100%;
   background-color: #ffffff;
   border: 2px solid #d3d6da;
-  border-left: none;
-  border-radius: 0 4px 4px 0;
+  border-right: none;
+  border-radius: 4px 0 0 4px;
   padding: 20px;
   overflow-y: auto;
   flex-shrink: 0;
@@ -460,13 +460,6 @@ body {
 }
 
 @media (pointer: coarse) {
-  .title {
-    font-size: 30px;
-    font-weight: 700;
-    color: #121213;
-    margin: 0 0 10px 0;
-    letter-spacing: 0.5px;
-  }
   .rightButtonHolder {
     display: flex;
     flex-direction: column;
@@ -483,20 +476,5 @@ body {
     justify-content: center;
     gap: 12px;
     margin-right: 40px;
-  }
-
-  .leaderboard-content {
-    width: 250px;
-    height: 100%;
-    background-color: #ffffff;
-    border: 2px solid #d3d6da;
-    border-left: none;
-    border-radius: 0 4px 4px 0;
-    padding: 20px;
-    overflow-y: auto;
-    flex-shrink: 0;
-  }
-  .leaderboard-panel.open {
-    transform: translateX(calc(-100% + 250px));
   }
 }
