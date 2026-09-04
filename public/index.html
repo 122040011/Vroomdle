@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vroomdle - Racing Game</title>
     <link rel="stylesheet" href="styles.css" />
-    <link rel="icon" type="image/svg+xml" href="./icon.svg">
+    <link rel="icon" type="image/svg+xml" href="./icon.svg" />
     <script type="importmap">
       {
         "imports": {
@@ -18,9 +18,9 @@
     <div class="page-container">
       <div class="topBar">
         <div class="leftInfo">
-          <img src="./icon.svg"/>
+          <img src="./icon.svg" />
           <div class="vertContainerText">
-            <input type="text" id="usernameField" placeholder="Guest"></p>
+            <input type="text" id="usernameField" placeholder="Guest" />
             <p id="isVrooming">&nbsp;is Vrooming...</p>
           </div>
         </div>
@@ -35,6 +35,10 @@
       <div class="main-game-area">
         <!-- Center: Game Canvas -->
         <div class="center-game">
+          <div class="leftButtonHolder">
+            <button class="controlButton" id="w"></button>
+            <button class="controlButton" id="s"></button>
+          </div>
           <div class="game-container">
             <canvas id="gameCanvas" width="800" height="600"></canvas>
 
@@ -63,10 +67,8 @@
                 <button id="restartButton" class="btn">Race Again</button>
               </div>
             </div>
-          </div>
-
-          <!-- Leaderboard (slides behind canvas from right) -->
-          <div id="leaderboardPanel" class="leaderboard-panel">
+            <!-- Leaderboard (slides behind canvas from right) -->
+            <div id="leaderboardPanel" class="leaderboard-panel">
             <div class="leaderboard-content">
               <h3 class="leaderboard-title">Top 10</h3>
               <div id="leaderboardList" class="leaderboard-list">
@@ -136,6 +138,11 @@
                 <path d="M4 8l4-4 4 4" />
               </svg>
             </button>
+          </div>
+          </div>
+          <div class="rightButtonHolder">
+            <button class="controlButton" id="a"></button>
+            <button class="controlButton" id="d"></button>
           </div>
         </div>
       </div>

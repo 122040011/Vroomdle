@@ -85,6 +85,10 @@ const bestTimeDisplay = document.getElementById("bestTimeDisplay");
 const newBestTimeDisplay = document.getElementById("newBestTime");
 const leaderboardPanel = document.getElementById("leaderboardPanel");
 const leaderboardToggle = document.getElementById("leaderboardToggle");
+const wButton = document.getElementById("w");
+const aButton = document.getElementById("a");
+const sButton = document.getElementById("s");
+const dButton = document.getElementById("d");
 const usernameField = document.getElementById("usernameField");
 usernameField.value = username;
 
@@ -112,6 +116,46 @@ usernameField.addEventListener("blur", (event) => {
 // Leaderboard toggle
 leaderboardToggle.addEventListener("click", () => {
   leaderboardPanel.classList.toggle("open");
+});
+
+wButton.addEventListener("pointerdown", () => {
+  handleKeyDown({ key: "w" });
+});
+wButton.addEventListener("pointerup", () => {
+  handleKeyUp({ key: "w" });
+});
+wButton.addEventListener("pointerleave", () => {
+  handleKeyUp({ key: "w" });
+});
+
+sButton.addEventListener("pointerdown", () => {
+  handleKeyDown({ key: "s" });
+});
+sButton.addEventListener("pointerup", () => {
+  handleKeyUp({ key: "s" });
+});
+sButton.addEventListener("pointerleave", () => {
+  handleKeyUp({ key: "s" });
+});
+
+aButton.addEventListener("pointerdown", () => {
+  handleKeyDown({ key: "a" });
+});
+aButton.addEventListener("pointerup", () => {
+  handleKeyUp({ key: "a" });
+});
+aButton.addEventListener("pointerleave", () => {
+  handleKeyUp({ key: "a" });
+});
+
+dButton.addEventListener("pointerdown", () => {
+  handleKeyDown({ key: "d" });
+});
+dButton.addEventListener("pointerup", () => {
+  handleKeyUp({ key: "d" });
+});
+dButton.addEventListener("pointerleave", () => {
+  handleKeyUp({ key: "d" });
 });
 
 // Initialize
