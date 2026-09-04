@@ -16,6 +16,7 @@ let relativeScale = 1;
 let channelID = null;
 let lastFrameTime = null;
 let usernameFocus = false;
+let toggleLine = true;
 const urlParams = new URLSearchParams(window.location.search);
 //Auth and login
 const isDiscord =
@@ -525,7 +526,18 @@ function getDailySeedString() {
 function handleKeyDown(e) {
   if (usernameFocus) return;
   const key = e.key.toLowerCase();
-  if (key == "r") startGame();
+
+  switch (key) {
+    case "r":
+      startGame();
+      break;
+    case "q":
+      toggleLine = !toggleLine;
+      break;
+    default:
+      break;
+  }
+
   if (key in keys) {
     keys[key] = true;
   }
@@ -706,8 +718,8 @@ function drawTrack() {
     ctx.fill();
 
     // Draw boundaries
-    ctx.strokeStyle = isCurrent ? "#0d0d0d" : "#121213";
-    ctx.lineWidth = isCurrent ? 7 : 3;
+    ctx.strokeStyle = "#121213";
+    ctx.lineWidth = 3;
 
     // Outer boundary line
     ctx.beginPath();
@@ -733,6 +745,38 @@ function drawTrack() {
       car.currentSegmentIndex === trackSegments.length - 1
     )
       drawCar();
+  }
+  if (toggleLine) {
+    for (
+      let i = car.currentSegmentIndex;
+      i < Math.min(trackSegments.length, car.currentSegmentIndex + 2);
+      i++
+    ) {
+      let segment = trackSegments[i];
+      // Draw boundaries
+      ctx.strokeStyle = "#12550d";
+      ctx.lineWidth = 7;
+
+      // Outer boundary line
+      ctx.beginPath();
+      if (segment.outer.length > 0) {
+        ctx.moveTo(segment.outer[0].x, segment.outer[0].y);
+        for (let j = 1; j < segment.outer.length; j++) {
+          ctx.lineTo(segment.outer[j].x, segment.outer[j].y);
+        }
+      }
+      ctx.stroke();
+
+      // Inner boundary line
+      ctx.beginPath();
+      if (segment.inner.length > 0) {
+        ctx.moveTo(segment.inner[0].x, segment.inner[0].y);
+        for (let j = 1; j < segment.inner.length; j++) {
+          ctx.lineTo(segment.inner[j].x, segment.inner[j].y);
+        }
+      }
+      ctx.stroke();
+    }
   }
 
   // Draw finish line on last segment

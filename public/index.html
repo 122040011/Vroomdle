@@ -51,6 +51,7 @@
                   <p><strong>A / J</strong> - Turn Left</p>
                   <p><strong>D / L</strong> - Turn Right</p>
                   <p><strong>R</strong> - Reset</p>
+                  <p><strong>Q</strong> - Toggle Help Lines</p>
                 </div>
                 <p id="bestTimeDisplay" class="best-time"></p>
                 <button id="startButton" class="btn">Start Race</button>
@@ -69,76 +70,76 @@
             </div>
             <!-- Leaderboard (slides behind canvas from right) -->
             <div id="leaderboardPanel" class="leaderboard-panel">
-            <div class="leaderboard-content">
-              <h3 class="leaderboard-title">Top 10</h3>
-              <div id="leaderboardList" class="leaderboard-list">
-                <div class="leaderboard-item">
-                  <span class="rank">1</span>
-                  <span class="player-name" id="player1"></span>
-                  <span class="player-time" id="time1"></span>
-                </div>
-                <div class="leaderboard-item">
-                  <span class="rank">2</span>
-                  <span class="player-name" id="player2"></span>
-                  <span class="player-time" id="time2"></span>
-                </div>
-                <div class="leaderboard-item">
-                  <span class="rank">3</span>
-                  <span class="player-name" id="player3"></span>
-                  <span class="player-time" id="time3"></span>
-                </div>
-                <div class="leaderboard-item">
-                  <span class="rank">4</span>
-                  <span class="player-name" id="player4"></span>
-                  <span class="player-time" id="time4"></span>
-                </div>
-                <div class="leaderboard-item">
-                  <span class="rank">5</span>
-                  <span class="player-name" id="player5"></span>
-                  <span class="player-time" id="time5"></span>
-                </div>
-                <div class="leaderboard-item">
-                  <span class="rank">6</span>
-                  <span class="player-name" id="player6"></span>
-                  <span class="player-time" id="time6"></span>
-                </div>
-                <div class="leaderboard-item">
-                  <span class="rank">7</span>
-                  <span class="player-name" id="player7"></span>
-                  <span class="player-time" id="time7"></span>
-                </div>
-                <div class="leaderboard-item">
-                  <span class="rank">8</span>
-                  <span class="player-name" id="player8"></span>
-                  <span class="player-time" id="time8"></span>
-                </div>
-                <div class="leaderboard-item">
-                  <span class="rank">9</span>
-                  <span class="player-name" id="player9"></span>
-                  <span class="player-time" id="time9"></span>
-                </div>
-                <div class="leaderboard-item">
-                  <span class="rank">10</span>
-                  <span class="player-name" id="player10"></span>
-                  <span class="player-time" id="time10"></span>
+              <div class="leaderboard-content">
+                <h3 class="leaderboard-title">Top 10</h3>
+                <div id="leaderboardList" class="leaderboard-list">
+                  <div class="leaderboard-item">
+                    <span class="rank">1</span>
+                    <span class="player-name" id="player1"></span>
+                    <span class="player-time" id="time1"></span>
+                  </div>
+                  <div class="leaderboard-item">
+                    <span class="rank">2</span>
+                    <span class="player-name" id="player2"></span>
+                    <span class="player-time" id="time2"></span>
+                  </div>
+                  <div class="leaderboard-item">
+                    <span class="rank">3</span>
+                    <span class="player-name" id="player3"></span>
+                    <span class="player-time" id="time3"></span>
+                  </div>
+                  <div class="leaderboard-item">
+                    <span class="rank">4</span>
+                    <span class="player-name" id="player4"></span>
+                    <span class="player-time" id="time4"></span>
+                  </div>
+                  <div class="leaderboard-item">
+                    <span class="rank">5</span>
+                    <span class="player-name" id="player5"></span>
+                    <span class="player-time" id="time5"></span>
+                  </div>
+                  <div class="leaderboard-item">
+                    <span class="rank">6</span>
+                    <span class="player-name" id="player6"></span>
+                    <span class="player-time" id="time6"></span>
+                  </div>
+                  <div class="leaderboard-item">
+                    <span class="rank">7</span>
+                    <span class="player-name" id="player7"></span>
+                    <span class="player-time" id="time7"></span>
+                  </div>
+                  <div class="leaderboard-item">
+                    <span class="rank">8</span>
+                    <span class="player-name" id="player8"></span>
+                    <span class="player-time" id="time8"></span>
+                  </div>
+                  <div class="leaderboard-item">
+                    <span class="rank">9</span>
+                    <span class="player-name" id="player9"></span>
+                    <span class="player-time" id="time9"></span>
+                  </div>
+                  <div class="leaderboard-item">
+                    <span class="rank">10</span>
+                    <span class="player-name" id="player10"></span>
+                    <span class="player-time" id="time10"></span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <button
-              id="leaderboardToggle"
-              class="leaderboard-toggle"
-              title="Toggle Leaderboard"
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="currentColor"
+              <button
+                id="leaderboardToggle"
+                class="leaderboard-toggle"
+                title="Toggle Leaderboard"
               >
-                <path d="M4 8l4-4 4 4" />
-              </svg>
-            </button>
-          </div>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                >
+                  <path d="M4 8l4-4 4 4" />
+                </svg>
+              </button>
+            </div>
           </div>
           <div class="rightButtonHolder">
             <button class="controlButton" id="a"></button>
