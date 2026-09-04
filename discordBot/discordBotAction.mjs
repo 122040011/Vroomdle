@@ -123,10 +123,13 @@ async function canBotPostToChannel(channelID) {
   }
 }
 
-const dateString = new Date().toISOString();
+const yesterday = new Date();
+yesterday.setDate(yesterday.getDate() - 1);
+const dateString = yesterday.toISOString();
+
 const channels = await getChannelsReq(dateString, process.env.BACKEND_PASSWORD);
 
-trackCanvas = imageRender.renderTrack();
+trackCanvas = imageRender.renderTrack(yesterday);
 for (let channel of channels.data) {
   writeToChannel(channel.channelID);
 }

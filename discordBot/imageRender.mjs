@@ -77,8 +77,8 @@ export function renderLeaderboard(leaderboardData = []) {
   return canvas;
 }
 
-export function renderTrack() {
-  const seed = trackGenerator.getSeed();
+export function renderTrack(date) {
+  const seed = trackGenerator.getSeed(date);
   const { segments, trackMetadata } =
     trackGenerator.generateTrackSegments(seed);
   const canvas = trackGenerator.drawTrack(segments, trackMetadata);

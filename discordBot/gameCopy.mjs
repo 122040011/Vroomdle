@@ -13,8 +13,7 @@ function seededRandom(seed) {
   };
 }
 
-export function getSeed() {
-  const now = new Date();
+export function getSeed(now) {
   const year = now.getUTCFullYear();
   const month = now.getUTCMonth() + 1;
   const day = now.getUTCDate();
