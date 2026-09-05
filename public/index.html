@@ -15,6 +15,14 @@
     </script>
   </head>
   <body>
+    <div class="leftButtonHolder">
+      <button class="controlButton" id="w"></button>
+      <button class="controlButton" id="s"></button>
+    </div>
+    <div class="rightButtonHolder">
+      <button class="controlButton" id="a"></button>
+      <button class="controlButton" id="d"></button>
+    </div>
     <div class="page-container">
       <div class="topBar">
         <div class="leftInfo">
@@ -33,12 +41,9 @@
 
       <!-- Main Game Area -->
       <div class="main-game-area">
+        <div class="spacer"></div>
         <!-- Center: Game Canvas -->
         <div class="center-game">
-          <div class="leftButtonHolder">
-            <button class="controlButton" id="w"></button>
-            <button class="controlButton" id="s"></button>
-          </div>
           <div class="game-container">
             <canvas id="gameCanvas" width="800" height="600"></canvas>
 
@@ -141,11 +146,8 @@
               </button>
             </div>
           </div>
-          <div class="rightButtonHolder">
-            <button class="controlButton" id="a"></button>
-            <button class="controlButton" id="d"></button>
-          </div>
         </div>
+        <div class="spacer"></div>
       </div>
 
       <!-- Bottom Controls -->

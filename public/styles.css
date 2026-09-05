@@ -5,7 +5,8 @@
 }
 
 body {
-  min-height: 100vh;
+  min-height: 700px;
+  min-width: 1200px;
   background-color: #ffffff;
   display: flex;
   flex-direction: column;
@@ -97,6 +98,10 @@ body {
   position: relative;
 }
 
+.spacer {
+  display: none;
+}
+
 /* Center Game */
 .center-game {
   position: relative;
@@ -106,23 +111,32 @@ body {
 }
 
 .controlButton {
-  width: 80px;
-  height: 80px;
-  background-color: transparent;
+  width: 3.5cm;
+  height: 3.5cm;
+  background-color: rgba(128, 128, 128, 0.153);
   border: none;
   cursor: pointer;
   touch-action: none;
   -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
   user-select: none;
   margin: 8px;
   flex-shrink: 0;
   padding: 0;
+  border-radius: 50%;
 
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><polygon points="0,0 60,0 80,40 60,80 0,80 20,40" fill="%234a7c44"/></svg>');
-  background-size: contain;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><polygon points="20,0 40,0 80,40 40,80 20,80 60,40" fill="%234a7c44"/></svg>');
+  background-size: 50% 50%;
   background-repeat: no-repeat;
   background-position: center;
   transition: background-image 0.2s;
+}
+
+.controlButton:active,
+.controlButton:focus,
+.controlButton:focus-visible {
+  background-color: rgba(128, 128, 128, 0.153);
 }
 
 .controlButton:hover {
@@ -147,10 +161,20 @@ body {
 
 .leftButtonHolder {
   display: none;
+  position: fixed;
+  left: 5%;
+  top: 95%;
+  z-index: 100;
+  transform: translateY(-100%);
 }
 
 .rightButtonHolder {
   display: none;
+  position: fixed;
+  left: 95%;
+  top: 95%;
+  z-index: 100;
+  transform: translate(-100%, -100%);
 }
 .game-container {
   position: relative;
@@ -465,11 +489,10 @@ body {
 @media (pointer: coarse) {
   .rightButtonHolder {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
     gap: 12px;
-    margin-left: 40px;
   }
 
   .leftButtonHolder {
@@ -478,7 +501,6 @@ body {
     align-items: center;
     justify-content: center;
     gap: 12px;
-    margin-right: 40px;
   }
 
   .leaderboard-panel {
@@ -530,5 +552,12 @@ body {
 
   .leaderboard-item {
     grid-template-columns: 20px 1fr auto;
+  }
+  .spacer {
+    width: 2000px;
+    height: 10px;
+  }
+  .title {
+    font-size: 30px;
   }
 }
