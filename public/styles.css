@@ -133,18 +133,8 @@ body {
   transition: background-image 0.2s;
 }
 
-.controlButton:active,
-.controlButton:focus,
-.controlButton:focus-visible {
-  background-color: rgba(128, 128, 128, 0.153);
-}
-
-.controlButton:hover {
-  background-color: #538d4e;
-}
-
 .controlButton:active {
-  background-color: #3a6334;
+  background-color: #b4c32a35;
 }
 
 #w {
