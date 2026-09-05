@@ -5,8 +5,8 @@ import { garage } from "./garage.js";
 
 // Game State
 let gameState = "menu"; // paused, playing, won
-let uid = null;
-let username = null;
+let uid = localStorage.getItem("uid") ?? null;
+let username = localStorage.getItem("username") ?? null;
 let time = 0;
 let bestTime = null;
 let animationFrameId = null;
@@ -93,6 +93,7 @@ timerResetButton.addEventListener("click", startGame);
 
 usernameField.addEventListener("change", (event) => {
   username = usernameField.value;
+  localStorage.setItem("username", username);
 });
 
 usernameField.addEventListener("focus", (event) => {
@@ -569,6 +570,7 @@ async function handleUidUpdate() {
 
   if (response.success && response.data?.uid) {
     uid = response.data.uid;
+    localStorage.setItem("uid", uid);
   }
   console.log(`uid=${uid}`);
   return response;
