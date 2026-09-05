@@ -1,6 +1,7 @@
 import * as reqToBackend from "./reqToBackend.js";
 import * as helper from "./helper.mjs";
 import * as discordAuthFront from "./discordAuthFront.js";
+import { garage } from "./garage.js";
 
 // Game State
 let gameState = "menu"; // paused, playing, won
@@ -12,12 +13,13 @@ let animationFrameId = null;
 let gameMode = "daily";
 let seed = getSeed();
 let scale = 1;
-let relativeScale = 1;
 let channelID = null;
 let lastFrameTime = null;
 let usernameFocus = false;
 let toggleLine = true;
 const urlParams = new URLSearchParams(window.location.search);
+
+let car = null;
 //Auth and login
 const isDiscord =
   window.location.hostname.includes("discordsays.com") ||
@@ -43,19 +45,6 @@ const ctx = canvas.getContext("2d");
 
 // Car state
 // Physics values are now per-second instead of per-frame
-const car = {
-  x: 100,
-  y: 300,
-  angle: 0,
-  speed: 0,
-  maxSpeed: 300 * relativeScale,
-  acceleration: 60 * relativeScale,
-  friction: 60 * relativeScale,
-  turnSpeed: 2.45,
-  currentSegmentIndex: 0,
-  prevX: 100,
-  prevY: 300,
-};
 
 // Keys pressed
 const keys = {
@@ -411,7 +400,10 @@ function transformSegmentsToFit(segments, canvasWidth, canvasHeight) {
   const scaleX = availableWidth / trackNaturalWidth;
   const scaleY = availableHeight / trackNaturalHeight;
   scale = Math.min(scaleX, scaleY);
-  relativeScale = scale * 3;
+
+  car = garage[Math.floor(seededRandom(seed)() * garage.length)];
+  console.log(car);
+  car.scaleCar(scale);
 
   const scaledWidth = trackNaturalWidth * scale;
   const scaledHeight = trackNaturalHeight * scale;
@@ -556,10 +548,10 @@ function resetGame() {
   const firstSegment = trackSegments[0];
   car.x =
     firstSegment.entryPoint.x +
-    15 * relativeScale * Math.cos(firstSegment.entryPoint.angle) * 3;
+    30 * scale * Math.cos(firstSegment.entryPoint.angle) * 3;
   car.y =
     firstSegment.entryPoint.y +
-    15 * relativeScale * Math.sin(firstSegment.entryPoint.angle) * 3;
+    30 * scale * Math.sin(firstSegment.entryPoint.angle) * 3;
   car.angle = firstSegment.entryPoint.angle;
   car.speed = 0;
   car.currentSegmentIndex = 0;
@@ -811,22 +803,12 @@ function drawCar(opacity = 255) {
   ctx.rotate(car.angle);
 
   // Car body
-  ctx.fillStyle = "#538d4e" + opacityString;
-  ctx.fillRect(
-    -15 * relativeScale,
-    -10 * relativeScale,
-    30 * relativeScale,
-    20 * relativeScale,
-  );
+  ctx.fillStyle = car.colour + opacityString;
+  ctx.fillRect(-45 * scale, -30 * scale, 90 * scale, 60 * scale);
 
   // Car front indicator
   ctx.fillStyle = "#121213" + opacityString;
-  ctx.fillRect(
-    12 * relativeScale,
-    -6 * relativeScale,
-    6 * relativeScale,
-    12 * relativeScale,
-  );
+  ctx.fillRect(36 * scale, -18 * scale, 18 * scale, 36 * scale);
 
   ctx.restore();
 }
@@ -842,7 +824,6 @@ function updateGame(deltaTime) {
     gameState = "playing";
 
   if (gameState !== "playing") return;
-
   // Handle acceleration (deltaTime is in seconds)
   if (keys.w) {
     car.speed = Math.min(
@@ -852,7 +833,7 @@ function updateGame(deltaTime) {
   } else if (keys.s) {
     if (car.speed > 0) {
       car.speed = Math.max(
-        car.speed - car.acceleration * 5 * deltaTime,
+        car.speed - car.brake * deltaTime,
         -car.maxSpeed * 0.15,
       );
     } else {
@@ -861,19 +842,19 @@ function updateGame(deltaTime) {
         -car.maxSpeed * 0.15,
       );
     }
-  } else if (car.speed > 10) {
+  } else if (car.speed > 15) {
     car.speed -= car.friction * deltaTime;
   }
 
   // Handle turning
-  if (car.speed > 6) {
+  if (car.speed > 10 * scale) {
     if (keys.a || keys.j) {
       car.angle -= car.turnSpeed * deltaTime;
     }
     if (keys.d || keys.l) {
       car.angle += car.turnSpeed * deltaTime;
     }
-  } else if (car.speed < -6) {
+  } else if (car.speed < -10 * scale) {
     if (keys.a || keys.j) {
       car.angle += car.turnSpeed * deltaTime;
     }
@@ -933,7 +914,7 @@ function updateGame(deltaTime) {
 }
 
 function checkSegmentCollision(x, y, segment) {
-  const collisionDistance = 15 * relativeScale;
+  const collisionDistance = 45 * scale;
 
   // Check outer boundary
   for (let i = 0; i < segment.outer.length - 1; i++) {
@@ -981,7 +962,7 @@ function updateCurrentSegment() {
     const boundaryAngle = exitPoint.angle + Math.PI / 2; // Perpendicular to exit direction
 
     // Create two points on the boundary line (far left and far right)
-    const boundaryHalfWidth = trackMetadata.trackWidth;
+    const boundaryHalfWidth = trackMetadata.trackWidth * scale;
     const boundary1 = {
       x: exitPoint.x + Math.cos(boundaryAngle) * boundaryHalfWidth,
       y: exitPoint.y + Math.sin(boundaryAngle) * boundaryHalfWidth,
@@ -1022,7 +1003,7 @@ function updateCurrentSegment() {
     const entryPoint = currentSegment.entryPoint;
     const boundaryAngle = entryPoint.angle + Math.PI / 2;
 
-    const boundaryHalfWidth = trackMetadata.trackWidth;
+    const boundaryHalfWidth = trackMetadata.trackWidth * scale;
     const boundary1 = {
       x: entryPoint.x + Math.cos(boundaryAngle) * boundaryHalfWidth,
       y: entryPoint.y + Math.sin(boundaryAngle) * boundaryHalfWidth,
@@ -1101,9 +1082,8 @@ function checkFinish() {
     trackSegments.at(-1).outer.at(-1),
     trackSegments.at(-1).inner.at(-1),
   );
-  if (dist < 15 * relativeScale) {
+  if (dist < 45 * scale) {
     console.log(`Finished Map with seed ${seed}`);
-    console.log(`relative scale ${relativeScale}`);
     return true;
   }
   return false;
