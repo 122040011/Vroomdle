@@ -36,7 +36,7 @@ if (isDiscord) {
   // channelID = userDetail.guildID; //separate by server
 
   //use if you want to separate by channel
-  channelID = userDetail.channelID;
+  channelID = userDetail.guildID ? userDetail.channelID : null;
 }
 
 // Canvas setup
