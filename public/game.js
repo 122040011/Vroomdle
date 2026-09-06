@@ -617,7 +617,7 @@ function endGame() {
     newBestTimeDisplay.classList.add("hidden");
   }
 
-  finalTimeDisplay.textContent = time.toFixed(2) + "s";
+  finalTimeDisplay.textContent = time.toFixed(3) + "s";
   winOverlay.classList.remove("hidden");
   updateBestTimeDisplay();
 }
