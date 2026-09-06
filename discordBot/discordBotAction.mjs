@@ -36,7 +36,7 @@ async function writeToChannel(channelID) {
   const data = await getLeaderboard(dateString, channelID);
   const leaderboard = data.data;
   console.log(channelID, leaderboard);
-  let message = `Today's Results (${dateString.split("T")[0]})\n`;
+  let message = `Yesterday's Results (${dateString.split("T")[0]})\n`;
   const leaderboardCanvas = imageRender.renderLeaderboard(leaderboard);
 
   const mainCanvas = createCanvas(1600, 1200);
