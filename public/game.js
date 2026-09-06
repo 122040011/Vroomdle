@@ -118,6 +118,9 @@ wButton.addEventListener("pointerup", () => {
 wButton.addEventListener("pointerleave", () => {
   handleKeyUp({ key: "w" });
 });
+wButton.addEventListener("contextmenu", (e) => {
+  e.preventDefault();
+});
 
 sButton.addEventListener("pointerdown", () => {
   handleKeyDown({ key: "s" });
@@ -127,6 +130,9 @@ sButton.addEventListener("pointerup", () => {
 });
 sButton.addEventListener("pointerleave", () => {
   handleKeyUp({ key: "s" });
+});
+sButton.addEventListener("contextmenu", (e) => {
+  e.preventDefault();
 });
 
 aButton.addEventListener("pointerdown", () => {
@@ -138,6 +144,9 @@ aButton.addEventListener("pointerup", () => {
 aButton.addEventListener("pointerleave", () => {
   handleKeyUp({ key: "a" });
 });
+aButton.addEventListener("contextmenu", (e) => {
+  e.preventDefault();
+});
 
 dButton.addEventListener("pointerdown", () => {
   handleKeyDown({ key: "d" });
@@ -147,6 +156,9 @@ dButton.addEventListener("pointerup", () => {
 });
 dButton.addEventListener("pointerleave", () => {
   handleKeyUp({ key: "d" });
+});
+dButton.addEventListener("contextmenu", (e) => {
+  e.preventDefault();
 });
 
 // Initialize
