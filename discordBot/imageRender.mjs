@@ -51,7 +51,7 @@ export function renderLeaderboard(leaderboardData = []) {
 
       // Truncate name if it overflows before reaching the time column
       let nameText = entry.username;
-      const maxNameWidth = 170;
+      const maxNameWidth = 150;
       if (ctx.measureText(nameText).width > maxNameWidth) {
         while (
           ctx.measureText(nameText + "...").width > maxNameWidth &&
