@@ -6,9 +6,9 @@ let scale = 1;
 // SEEDED RANDOM NUMBER GENERATOR
 // ============================================
 function seededRandom(seed) {
-  let state = seed;
+  let state = Math.imul(seed ^ 0x6c078965, 181243253) >>> 0;
   return function () {
-    state = (state * 1664525 + 1013904223) % 4294967296;
+    state = ((Math.imul(state, 1664525) >>> 0) + 10139082223) % 4294967296;
     return state / 4294967296;
   };
 }

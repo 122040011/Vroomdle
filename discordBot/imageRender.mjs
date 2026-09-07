@@ -1,5 +1,6 @@
 import { createCanvas } from "@napi-rs/canvas";
 import * as trackGenerator from "./gameCopy.mjs";
+import * as helper from "../public/helper.mjs";
 
 export function renderLeaderboard(leaderboardData = []) {
   const canvas = createCanvas(400, 650);
@@ -50,7 +51,7 @@ export function renderLeaderboard(leaderboardData = []) {
 
       // Truncate name if it overflows before reaching the time column
       let nameText = entry.username;
-      const maxNameWidth = 140;
+      const maxNameWidth = 170;
       if (ctx.measureText(nameText).width > maxNameWidth) {
         while (
           ctx.measureText(nameText + "...").width > maxNameWidth &&
@@ -68,7 +69,7 @@ export function renderLeaderboard(leaderboardData = []) {
       ctx.font = "900 17px monospace, sans-serif";
       ctx.textAlign = "right";
       ctx.fillText(
-        entry.recordTime,
+        helper.formatTimeDisplay(entry.recordTime),
         startX + cardWidth - 20,
         y + cardHeight / 2,
       );
