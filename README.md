@@ -63,3 +63,6 @@ The webapp is deployed on the following services:
   | **DISCORD_BOT_TOKEN** |secrets | Discord Developer Portal|
   | **DISCORD_ACTIVITY_LINK** |vars | Discord Developer Portal|
   | **WEB_URL** |vars | Website url hosted|
+
+- Updates
+  Last Updated: 16/11/2026 (Refresh Github Actions)
